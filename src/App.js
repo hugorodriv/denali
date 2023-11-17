@@ -1,74 +1,66 @@
-import React, { useState } from "react";
-import { flightData } from "./airlines.js";
-// IMPORTANT - we need to import useState if we want
-// to use it in our application.
+import React, { useEffect, useState } from "react";
+
+// This is template code - IT WILL GENERATE ERRORS when loaded
+// You will need to make two changes to the code (as outlined in the Lab Instructions)
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
+  // the data response from the API - initially empty array
+  const [data, setData] = useState([]);
+  // a flag to indicate the data is loading - initially false
+  const [loading, setLoading] = useState(false);
+  // a flag to indicate an error, if any - initially null.
+  const [error, setError] = useState(null);
 
-  function changeSearchTerm(event) {
-    setSearchTerm(event.target.value);
-  }
+  useEffect(() => {
+    // Change the URL to your chosen JSON file as per Lab 4
+    // You will need to copy the URL of one of the 'raw' JSON files
+    // on GitHub. Please read the lab instructions.
+    const URL =
+      "https://airlabs.co/api/v9/airports?api_key=8e4dc1c1-49d5-427f-902a-9dac726afc04";
+
+    async function fetchAirportData() {
+      try {
+        const response = await fetch(URL);
+        const airportDataJson = await response.json(); // wait for the JSON response
+        setLoading(true);
+        // IMPORTANT - look at the JSON response - look at the structure
+        // This is where many errors occur!
+        setData(airportDataJson.response);
+      } catch (error) {
+        setError(error); // take the error message from the system
+        setLoading(false);
+      } // end try-catch block
+    } // end of fetchData
+
+    fetchAirportData(); // invoke fetchTrainData in useEffect
+  }, []); // end of useEffect
+
+  if (error) {
+    return <h1>Opps! An error has occurred: {error.toString()}</h1>;
+  } else if (loading === false) {
+    return <h1>Waiting for the airport data ...... waiting....</h1>;
+  } else {
+    return (
+      // send the data to the TrainDisplayComponent for render
+      <>
+        <AirportDisplayComponent APIData={data} />
+      </>
+    );
+  } // end else
+} // end App() function or component
+
+// This is our TrainDisplayComponent
+// This component will display the contents
+// the response of the API call from above.
+
+function AirportDisplayComponent(props) {
   return (
     <>
-      <div>
-        <input onChange={changeSearchTerm} type="text" />
-      </div>
-      <hr />
-      <Flights
-        flightDataInChild={flightData}
-        searchTermFromParent={searchTerm}
-      />
+      <h1>The CS385 Airport Tracker App</h1>
+      {props.APIData.map((t, index) => (
+        <b>{t.iata_code}</b>
+      ))}
     </>
   );
 }
-
-// This is the Child component called Robert
-function Flights(props) {
-  let numberResults = props.flightDataInChild.filter(
-    filterFlights(props.searchTermFromParent)
-  ).length;
-
-  return (
-    <>
-      <div>
-        {numberResults === 0 && <p>No results</p>}
-        {numberResults === 1 && <p>One flight available</p>}
-        {numberResults >= 2 && numberResults <= 20 && (
-          <p>Several flights available</p>
-        )}
-        {numberResults > 20 && (
-          <p>
-            A large number of search results – please consider narrowing your
-            search
-          </p>
-        )}
-      </div>
-      {props.flightDataInChild
-        .filter(filterFlights(props.searchTermFromParent))
-        .map((a, index) => (
-          <p key={index}>
-            <b>{a.flight}</b>, From: {a.dept}, To: {a.dest} <i>{a.status}</i>
-          </p>
-        ))}
-    </>
-  );
-
-  function filterFlights(searchTerm) {
-    return function (flightObject) {
-      let flight = flightObject.flight.toLowerCase();
-      let dept = flightObject.dept.toLowerCase();
-      let dest = flightObject.dest.toLowerCase();
-      let status = flightObject.status.toLowerCase();
-
-      return (
-        searchTerm !== "" &&
-        (flight.includes(searchTerm.toLowerCase()) ||
-          dept.includes(searchTerm.toLowerCase()) ||
-          dest.includes(searchTerm.toLowerCase()))
-      );
-    };
-  }
-}
-
 export default App;
