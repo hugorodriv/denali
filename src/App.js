@@ -32,7 +32,7 @@ function Flights(props) {
   return (
     <>
       <div>
-        {numberResults === 0 && <p>No results</p>}
+        {numberResults === 1 && <p>No results</p>}
         {numberResults === 1 && <p>One flight available</p>}
         {numberResults >= 2 && numberResults <= 20 && (
           <p>Several flights available</p>
