@@ -10,6 +10,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   // a flag to indicate an error, if any - initially null.
   const [error, setError] = useState(null);
+  // search term to search airports
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // Change the URL to your chosen JSON file as per Lab 4
@@ -35,6 +37,10 @@ function App() {
     fetchAirportData(); // invoke fetchTrainData in useEffect
   }, []); // end of useEffect
 
+  function onSearchFormChange(event) {
+    setSearchTerm(event.target.value);
+  }
+
   if (error) {
     return <h1>Opps! An error has occurred: {error.toString()}</h1>;
   } else if (loading === false) {
@@ -43,7 +49,13 @@ function App() {
     return (
       // send the data to the TrainDisplayComponent for render
       <>
-        <AirportDisplayComponent APIData={data} />
+        <p>Searching: [{searchTerm}]</p>
+        <form>
+          <h3>Type your search here</h3>
+          <input onChange={onSearchFormChange} type="text" />
+        </form>
+        <hr />
+        <AirportDisplayComponent APIData={data} searchTermFromParent={searchTerm}/>
       </>
     );
   } // end else
@@ -54,11 +66,20 @@ function App() {
 // the response of the API call from above.
 
 function AirportDisplayComponent(props) {
+  function AirportFilterFunction(searchTerm) {
+    return function (airportObject) {
+      let country_code = airportObject.country_code;
+      return (
+        searchTerm !== "" &&
+        country_code.includes(searchTerm)
+      );
+    };
+  }
   return (
     <>
       <h1>The CS385 Airport Tracker App</h1>
-      {props.APIData.map((t, index) => (
-        <b>{t.iata_code}</b>
+      {props.APIData.filter(AirportFilterFunction(props.searchTermFromParent)).map((t, index) => (
+        <p><b>{t.iata_code}</b></p>
       ))}
     </>
   );
