@@ -1,74 +1,76 @@
 import React, { useState } from "react";
-import { flightData } from "./airlines.js";
 // IMPORTANT - we need to import useState if we want
 // to use it in our application.
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [tot, setTot] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
-  function changeSearchTerm(event) {
-    setSearchTerm(event.target.value);
+  function changeOrigin(event) {
+    setOrigin(event.target.value);
+  }
+  function changeDestination(event) {
+    setDestination(event.target.value);
+  }
+  function changeTot(event) {
+    setTot(event.target.value);
+  }
+  function flipShowResults() {
+    setShowResults(!showResults);
   }
   return (
     <>
       <div>
-        <input onChange={changeSearchTerm} type="text" />
+        <SearchFilters 
+          changeOriginFromParent={changeOrigin}
+          changeDestinationFromParent={changeDestination}
+          changeTotFromParent={changeTot}
+          flipShowResultsFromParent={flipShowResults}
+          showResultsFromParent={showResults}
+        />
       </div>
-      <hr />
-      <Flights
-        flightDataInChild={flightData}
-        searchTermFromParent={searchTerm}
-      />
+      {showResults && <Results totFromParent={tot} originFromParent={origin} destinationFromParent={destination}/>}
+
     </>
   );
 }
 
-// This is the Child component called Robert
-function Flights(props) {
-  let numberResults = props.flightDataInChild.filter(
-    filterFlights(props.searchTermFromParent)
-  ).length;
+function SearchFilters(props) {
 
   return (
     <>
       <div>
-        {numberResults === 1 && <p>No results</p>}
-        {numberResults === 1 && <p>One flight available</p>}
-        {numberResults >= 2 && numberResults <= 20 && (
-          <p>Several flights available</p>
-        )}
-        {numberResults > 20 && (
-          <p>
-            A large number of search results – please consider narrowing your
-            search
-          </p>
-        )}
-      </div>
-      {props.flightDataInChild
-        .filter(filterFlights(props.searchTermFromParent))
-        .map((a, index) => (
-          <p key={index}>
-            <b>{a.flight}</b>, From: {a.dept}, To: {a.dest} <i>{a.status}</i>
-          </p>
-        ))}
+        <p>Origin: <input onChange={props.changeOriginFromParent} type="text" /></p>
+        <p>Destination: <input onChange={props.changeDestinationFromParent} type="text" /></p>
+
+        <form>
+          <label for="typeOfTransportation" class="form-label">Pick Transportation </label>
+          
+          <select onChange={props.changeTotFromParent} class="form-control"  id="typeOfTransportation" >
+            <option key="0" selected>Choose a type of transportation</option>
+            <option key="A" value="Car">Car</option>
+            <option key="B" value="EV">EV</option>
+            <option key="C" value="Train">Train</option>
+            <option key="D" value="Plane">Plane</option>
+          </select>
+        </form>
+        <p/>
+        <p/>
+        <button onClick={props.flipShowResultsFromParent} type="button" >Calculate CO2 Emissions</button>
+      </div> 
     </>
   );
 
-  function filterFlights(searchTerm) {
-    return function (flightObject) {
-      let flight = flightObject.flight.toLowerCase();
-      let dept = flightObject.dept.toLowerCase();
-      let dest = flightObject.dest.toLowerCase();
-      let status = flightObject.status.toLowerCase();
-
-      return (
-        searchTerm !== "" &&
-        (flight.includes(searchTerm.toLowerCase()) ||
-          dept.includes(searchTerm.toLowerCase()) ||
-          dest.includes(searchTerm.toLowerCase()))
-      );
-    };
-  }
 }
 
+function Results(props) {
+  return(
+    <>
+      <hr/>
+      <div>Traveling from {props.originFromParent} to {props.destinationFromParent} by {props.totFromParent}, CO2 amount: 1.521t</div>
+    </>
+  );
+}
 export default App;
