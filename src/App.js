@@ -40,21 +40,21 @@ function SearchFilters(props) {
   return (
     <>
 
-      <div class="container mx-auto p-8">
+      <div class="container mx-auto p-12">
         <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
 
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600">Origin</label>
+          <label class="text-sm font-medium text-gray-600">Origin</label>
           <input onChange={props.changeOriginFromParent} class="mt-1 p-2 border rounded w-full" />
         </div>
 
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600">Destination</label>
+          <label class="text-sm font-medium text-gray-600">Destination</label>
           <input onChange={props.changeDestinationFromParent} class="mt-1 p-2 border rounded w-full" />
         </div>
 
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-600">Pick Transportation</label>
+          <label class="text-sm font-medium text-gray-600">Pick Transportation</label>
           <select onChange={props.changeTotFromParent} class="mt-1 p-2 border rounded w-full">
             <option value="" selected disabled>Choose a type of transportation</option>
             <option value="Car">Car</option>
@@ -77,10 +77,10 @@ function SearchFilters(props) {
 function Results(props) {
   if (props.totFromParent !== "" && props.originFromParent !== "" && props.destinationFromParent !== "") {
     return (
-      <div class="text-2xl text-center mb-8">
-        Traveling from {props.originFromParent} 
-        to {props.destinationFromParent} 
-        by {props.totFromParent}, CO2 amount: *TBD*
+      <div class="text-2xl text-center">
+        <p>
+        Traveling from {props.originFromParent} to {props.destinationFromParent} by {props.totFromParent}, CO2 amount: *TBD*
+        </p>
       </div>
     );
   } else {
