@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-// IMPORTANT - we need to import useState if we want
-// to use it in our application.
 
 function App() {
   const [origin, setOrigin] = useState("");
@@ -77,15 +75,16 @@ function SearchFilters(props) {
 }
 
 function Results(props) {
-  if (props.totFromParent != "" && props.originFromParent != "" && props.destinationFromParent != "") {
-      <>
-        <div class="text-2xl text-center mb-8">
-          Traveling from {props.originFromParent} 
-          to {props.destinationFromParent} 
-          by {props.totFromParent}, CO2 amount: 1.521t
-        </div>
-      </>
-    
+  if (props.totFromParent !== "" && props.originFromParent !== "" && props.destinationFromParent !== "") {
+    return (
+      <div class="text-2xl text-center mb-8">
+        Traveling from {props.originFromParent} 
+        to {props.destinationFromParent} 
+        by {props.totFromParent}, CO2 amount: *TBD*
+      </div>
+    );
+  } else {
+    return null;
   }
 }
 export default App;
