@@ -1,76 +1,96 @@
-import React, { useState } from "react";
-// IMPORTANT - we need to import useState if we want
-// to use it in our application.
+import React, { useEffect, useState } from "react";
 
 function App() {
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
-  const [tot, setTot] = useState("");
-  const [showResults, setShowResults] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(" ");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  function changeOrigin(event) {
-    setOrigin(event.target.value);
+  useEffect(() => {
+    const URL = "https://raw.githubusercontent.com/hugorodriv/denali/main/public/Station";
+    async function fetchTrainData(){
+      try
+      {
+         const response = await fetch(URL);
+         const TrainDatajson = await response.json();
+         setLoading(true);
+         setData(fetchTrainData.objStation);
+      }
+      catch(error)
+      {
+        setError(error);
+        setLoading(false);
+      }
+    }
+    fetchTrainData();
+  }, []);
+
+  if(error)
+  {
+    return <h2>Page cannot be loaded due to {error.toString()}</h2>;
   }
-  function changeDestination(event) {
-    setDestination(event.target.value);
+  else if(loading === false)
+  {
+    return <h2>Please wait while page is loading</h2>
   }
-  function changeTot(event) {
-    setTot(event.target.value);
+  else{
+    return(
+      <>
+      <ResultsComponent API = {data}/>
+      </>
+    );
   }
-  function flipShowResults() {
-    setShowResults(!showResults);
+  
+  function onSearchFormChange(event) {
+    setSearchTerm(event.target.value);
   }
   return (
     <>
-      <div>
-        <SearchFilters 
-          changeOriginFromParent={changeOrigin}
-          changeDestinationFromParent={changeDestination}
-          changeTotFromParent={changeTot}
-          flipShowResultsFromParent={flipShowResults}
-          showResultsFromParent={showResults}
-        />
-      </div>
-      {showResults && <Results totFromParent={tot} originFromParent={origin} destinationFromParent={destination}/>}
-
+      <h1>Train Emissions Calculator</h1>
+      <p>Searching for [{searchTerm}]</p>
+      <form>
+        <h4>Type in your departure Station</h4>
+        <input onChange={onSearchFormChange} type="text" />
+      </form>
+      <form>
+        <h4>Type in your destination Station</h4>
+        <input onChange={onSearchFormChange} type="text" />
+      </form>
+      <hr />
+      <ResultsComponent
+        searchTermfromParent={searchTerm}
+       trainArrayfromParent={Stations}
+      />
     </>
   );
 }
+function ResultsComponent(props) {
+  function StationFilterFunction(searchTerm) {
+    return function (stationObject) {
+      let loco = stationObject.flight.toLowerCase();
+     
+      return (
+        searchTerm != "" &&
+        (loco.includes(searchTerm.toLowerCase()))
+      );
+    };
+  }
 
-function SearchFilters(props) {
+  let result = props.trainArrayfromParent.filter(
+    StationFilterFunction(props.searchTermfromParent)
+  ).length;
 
   return (
     <>
-      <div>
-        <p>Origin: <input onChange={props.changeOriginFromParent} type="text" /></p>
-        <p>Destination: <input onChange={props.changeDestinationFromParent} type="text" /></p>
-
-        <form>
-          <label for="typeOfTransportation" class="form-label">Pick Transportation </label>
-          
-          <select onChange={props.changeTotFromParent} class="form-control"  id="typeOfTransportation" >
-            <option key="0" selected>Choose a type of transportation</option>
-            <option key="A" value="Car">Car</option>
-            <option key="B" value="EV">EV</option>
-            <option key="C" value="Train">Train</option>
-            <option key="D" value="Plane">Plane</option>
-          </select>
-        </form>
-        <p/>
-        <p/>
-        <button onClick={props.flipShowResultsFromParent} type="button" >Calculate CO2 Emissions</button>
-      </div> 
-    </>
-  );
-
-}
-
-function Results(props) {
-  return(
-    <>
-      <hr/>
-      <div>Traveling from {props.originFromParent} to {props.destinationFromParent} by {props.totFromParent}, CO2 amount: 1.521t</div>
+      <h1>Search Results </h1>
+      {props.trainArrayfromParent
+        .filter(StationFilterFunction(props.searchTermfromParent))
+        .map((a, index) => (
+          <p key={index}>
+            {a.StationDesc}, {a.StationLattitude}, {a.StationLongitude}
+          </p>
+        ))}
     </>
   );
 }
 export default App;
+ 
