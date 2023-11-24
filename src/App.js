@@ -44,18 +44,18 @@ function SearchFilters(props) {
         <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
 
         <div class="mb-4">
-          <label for="origin" class="block text-sm font-medium text-gray-600">Origin</label>
-          <input id="origin" onChange={props.changeOriginFromParent} type="text" class="mt-1 p-2 border rounded w-full" />
+          <label class="block text-sm font-medium text-gray-600">Origin</label>
+          <input onChange={props.changeOriginFromParent} class="mt-1 p-2 border rounded w-full" />
         </div>
 
         <div class="mb-4">
-          <label for="destination" class="block text-sm font-medium text-gray-600">Destination</label>
-          <input id="destination" onChange={props.changeDestinationFromParent} type="text" class="mt-1 p-2 border rounded w-full" />
+          <label class="block text-sm font-medium text-gray-600">Destination</label>
+          <input onChange={props.changeDestinationFromParent} class="mt-1 p-2 border rounded w-full" />
         </div>
 
         <div class="mb-4">
-          <label for="typeOfTransportation" class="block text-sm font-medium text-gray-600">Pick Transportation</label>
-          <select onChange={props.changeTotFromParent} id="typeOfTransportation" class="mt-1 p-2 border rounded w-full">
+          <label class="block text-sm font-medium text-gray-600">Pick Transportation</label>
+          <select onChange={props.changeTotFromParent} class="mt-1 p-2 border rounded w-full">
             <option value="" selected disabled>Choose a type of transportation</option>
             <option value="Car">Car</option>
             <option value="EV">EV</option>
