@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-// IMPORTANT - we need to import useState if we want
-// to use it in our application.
 
 function App() {
   const [origin, setOrigin] = useState("");
@@ -41,36 +39,52 @@ function SearchFilters(props) {
 
   return (
     <>
-      <div>
-        <p>Origin: <input onChange={props.changeOriginFromParent} type="text" /></p>
-        <p>Destination: <input onChange={props.changeDestinationFromParent} type="text" /></p>
 
-        <form>
-          <label for="typeOfTransportation" class="form-label">Pick Transportation </label>
-          
-          <select onChange={props.changeTotFromParent} class="form-control"  id="typeOfTransportation" >
-            <option key="0" selected>Choose a type of transportation</option>
-            <option key="A" value="Car">Car</option>
-            <option key="B" value="EV">EV</option>
-            <option key="C" value="Train">Train</option>
-            <option key="D" value="Plane">Plane</option>
+      <div class="container mx-auto p-12">
+        <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Origin</label>
+          <input onChange={props.changeOriginFromParent} class="mt-1 p-2 border rounded w-full" />
+        </div>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Destination</label>
+          <input onChange={props.changeDestinationFromParent} class="mt-1 p-2 border rounded w-full" />
+        </div>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Pick Transportation</label>
+          <select onChange={props.changeTotFromParent} class="mt-1 p-2 border rounded w-full">
+            <option value="" selected disabled>Choose a type of transportation</option>
+            <option value="Car">Car</option>
+            <option value="EV">EV</option>
+            <option value="Train">Train</option>
+            <option value="Plane">Plane</option>
           </select>
-        </form>
-        <p/>
-        <p/>
-        <button onClick={props.flipShowResultsFromParent} type="button" >Calculate CO2 Emissions</button>
-      </div> 
+        </div>
+
+        <div class="text-center">
+          <button onClick={props.flipShowResultsFromParent} type="button" class="bg-blue-500 text-white px-4 py-2 rounded">Calculate CO2 Emissions</button>
+        </div>
+      </div>
+
     </>
   );
 
 }
 
 function Results(props) {
-  return(
-    <>
-      <hr/>
-      <div>Traveling from {props.originFromParent} to {props.destinationFromParent} by {props.totFromParent}, CO2 amount: 1.521t</div>
-    </>
-  );
+  if (props.totFromParent !== "" && props.originFromParent !== "" && props.destinationFromParent !== "") {
+    return (
+      <div class="text-2xl text-center">
+        <p>
+        Traveling from {props.originFromParent} to {props.destinationFromParent} by {props.totFromParent}, CO2 amount: *TBD*
+        </p>
+      </div>
+    );
+  } else {
+    return null;
+  }
 }
 export default App;
