@@ -1,74 +1,90 @@
 import React, { useState } from "react";
-import { flightData } from "./airlines.js";
-// IMPORTANT - we need to import useState if we want
-// to use it in our application.
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [tot, setTot] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
-  function changeSearchTerm(event) {
-    setSearchTerm(event.target.value);
+  function changeOrigin(event) {
+    setOrigin(event.target.value);
+  }
+  function changeDestination(event) {
+    setDestination(event.target.value);
+  }
+  function changeTot(event) {
+    setTot(event.target.value);
+  }
+  function flipShowResults() {
+    setShowResults(!showResults);
   }
   return (
     <>
       <div>
-        <input onChange={changeSearchTerm} type="text" />
+        <SearchFilters 
+          changeOriginFromParent={changeOrigin}
+          changeDestinationFromParent={changeDestination}
+          changeTotFromParent={changeTot}
+          flipShowResultsFromParent={flipShowResults}
+          showResultsFromParent={showResults}
+        />
       </div>
-      <hr />
-      <Flights
-        flightDataInChild={flightData}
-        searchTermFromParent={searchTerm}
-      />
+      {showResults && <Results totFromParent={tot} originFromParent={origin} destinationFromParent={destination}/>}
+
     </>
   );
 }
 
-// This is the Child component called Robert
-function Flights(props) {
-  let numberResults = props.flightDataInChild.filter(
-    filterFlights(props.searchTermFromParent)
-  ).length;
+function SearchFilters(props) {
 
   return (
     <>
-      <div>
-        {numberResults === 0 && <p>No results</p>}
-        {numberResults === 1 && <p>One flight available</p>}
-        {numberResults >= 2 && numberResults <= 20 && (
-          <p>Several flights available</p>
-        )}
-        {numberResults > 20 && (
-          <p>
-            A large number of search results – please consider narrowing your
-            search
-          </p>
-        )}
+
+      <div class="container mx-auto p-12">
+        <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Origin</label>
+          <input onChange={props.changeOriginFromParent} class="mt-1 p-2 border rounded w-full" />
+        </div>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Destination</label>
+          <input onChange={props.changeDestinationFromParent} class="mt-1 p-2 border rounded w-full" />
+        </div>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Pick Transportation</label>
+          <select onChange={props.changeTotFromParent} class="mt-1 p-2 border rounded w-full">
+            <option value="" selected disabled>Choose a type of transportation</option>
+            <option value="Car">Car</option>
+            <option value="EV">EV</option>
+            <option value="Train">Train</option>
+            <option value="Plane">Plane</option>
+          </select>
+        </div>
+
+        <div class="text-center">
+          <button onClick={props.flipShowResultsFromParent} type="button" class="bg-blue-500 text-white px-4 py-2 rounded">Calculate CO2 Emissions</button>
+        </div>
       </div>
-      {props.flightDataInChild
-        .filter(filterFlights(props.searchTermFromParent))
-        .map((a, index) => (
-          <p key={index}>
-            <b>{a.flight}</b>, From: {a.dept}, To: {a.dest} <i>{a.status}</i>
-          </p>
-        ))}
+
     </>
   );
 
-  function filterFlights(searchTerm) {
-    return function (flightObject) {
-      let flight = flightObject.flight.toLowerCase();
-      let dept = flightObject.dept.toLowerCase();
-      let dest = flightObject.dest.toLowerCase();
-      let status = flightObject.status.toLowerCase();
-
-      return (
-        searchTerm !== "" &&
-        (flight.includes(searchTerm.toLowerCase()) ||
-          dept.includes(searchTerm.toLowerCase()) ||
-          dest.includes(searchTerm.toLowerCase()))
-      );
-    };
-  }
 }
 
+function Results(props) {
+  if (props.totFromParent !== "" && props.originFromParent !== "" && props.destinationFromParent !== "") {
+    return (
+      <div class="text-2xl text-center">
+        <p>
+        Traveling from {props.originFromParent} to {props.destinationFromParent} by {props.totFromParent}, CO2 amount: *TBD*
+        </p>
+      </div>
+    );
+  } else {
+    return null;
+  }
+}
 export default App;

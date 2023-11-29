@@ -1,0 +1,180 @@
+export const trainData = [
+  {
+    TrainStatus: "N",
+    TrainLatitude: 53.2043,
+    TrainLongitude: -6.10046,
+    TrainCode: "E920",
+    TrainDate: "17 Nov 2023",
+    PublicMessage: "E920\\nBray to Howth\\nExpected Departure 11:55",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "N",
+    TrainLatitude: 53.4509,
+    TrainLongitude: -6.15649,
+    TrainCode: "E225",
+    TrainDate: "17 Nov 2023",
+    PublicMessage: "E225\\nMalahide to Bray\\nExpected Departure 11:52",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.2364,
+    TrainLongitude: -6.11691,
+    TrainCode: "E110",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E110\\n10:30 - Malahide to Greystones (1 mins late)\\nDeparted Shankill next stop Bray",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.2557,
+    TrainLongitude: -6.11317,
+    TrainCode: "E919",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E919\\n11:35 - Bray to Howth (0 mins late)\\nDeparted Killiney next stop Dalkey",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.2756,
+    TrainLongitude: -6.10333,
+    TrainCode: "E220",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E220\\n10:40 - Howth to Bray (0 mins late)\\nDeparted Dalkey next stop Killiney",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.2951,
+    TrainLongitude: -6.13498,
+    TrainCode: "E221",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E221\\n10:50 - Malahide to Bray (2 mins late)\\nDeparted Dun Laoghaire next stop Sandycove",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.2951,
+    TrainLongitude: -6.13498,
+    TrainCode: "E817",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E817\\n11:25 - Bray to Malahide (-1 mins late)\\nArrived Dun Laoghaire next stop Salthill and Monkstown",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3027,
+    TrainLongitude: -6.17833,
+    TrainCode: "E111",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E111\\n11:00 - Howth to Greystones (0 mins late)\\nArrived Blackrock next stop Seapoint",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3027,
+    TrainLongitude: -6.17833,
+    TrainCode: "E918",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E918\\n11:04 - Greystones to Howth (3 mins late)\\nDeparted Blackrock next stop Booterstown",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3397,
+    TrainLongitude: -6.23773,
+    TrainCode: "E222",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E222\\n11:10 - Malahide to Bray (1 mins late)\\nDeparted Grand Canal Dock next stop Lansdowne Road",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3397,
+    TrainLongitude: -6.23773,
+    TrainCode: "E816",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E816\\n11:05 - Bray to Malahide (0 mins late)\\nDeparted Grand Canal Dock next stop Dublin Pearse",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3531,
+    TrainLongitude: -6.24591,
+    TrainCode: "E223",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E223\\n11:20 - Howth to Bray (0 mins late)\\nArrived Dublin Connolly next stop Tara Street",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3815,
+    TrainLongitude: -6.17699,
+    TrainCode: "E112",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E112\\n11:30 - Malahide to Greystones (2 mins late)\\nDeparted Raheny next stop Harmonstown",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3815,
+    TrainLongitude: -6.17699,
+    TrainCode: "E815",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E815\\n10:34 - Greystones to Malahide (1 mins late)\\nDeparted Raheny next stop Kilbarrack",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.3917,
+    TrainLongitude: -6.13678,
+    TrainCode: "E224",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E224\\n11:40 - Howth to Bray (0 mins late)\\nArrived Bayside next stop Howth Junction",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "R",
+    TrainLatitude: 53.392,
+    TrainLongitude: -6.11448,
+    TrainCode: "E916",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E916\\n10:35 - Bray to Howth (1 mins late)\\nArrived Sutton next stop Howth",
+    Direction: "Northbound"
+  },
+  {
+    TrainStatus: "T",
+    TrainLatitude: 53.2043,
+    TrainLongitude: -6.10046,
+    TrainCode: "E219",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E219\\n10:20 - Howth to Bray(5 mins late)\\nTERMINATED Bray at 11:40",
+    Direction: "Southbound"
+  },
+  {
+    TrainStatus: "T",
+    TrainLatitude: 53.4509,
+    TrainLongitude: -6.15649,
+    TrainCode: "E814",
+    TrainDate: "17 Nov 2023",
+    PublicMessage:
+      "E814\\n10:25 - Bray to Malahide(2 mins late)\\nTERMINATED Malahide at 11:44",
+    Direction: "Northbound"
+  }
+];
