@@ -18,6 +18,10 @@ function App() {
   function flipShowResults() {
     setShowResults(!showResults);
   }
+  function calculateDistance(lat1, long1, lat2, long2) {
+    let distance = acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371;
+    return distance;
+  }
   return (
     <>
       <div>
