@@ -17,7 +17,9 @@ function App() {
   const [destinationLat, setDestinationLat] = useState([]);
 
   function changeOrigin(event) {
-    setOrigin(event.target.value);
+    setTimeout(() => {
+      setOrigin(event.target.value);
+    }, 1001);
   }
   function changeDestination(event) {
     setDestination(event.target.value);
