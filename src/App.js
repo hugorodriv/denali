@@ -19,7 +19,7 @@ function App() {
     setShowResults(!showResults);
   }
   function calculateDistance(lat1, long1, lat2, long2) {
-    let distance = acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371;
+    let distance = Math.acos(Math.sin(lat1)*Math.sin(lat2)+Math.cos(lat1)*Math.cos(lat2)*Math.cos(long2-long1))*6371;
     return distance;
   }
   return (
