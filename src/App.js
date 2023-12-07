@@ -4,7 +4,7 @@ function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [tot, setTot] = useState("");
-  const [showResults, setShowResults] = useState(false);
+  const [showResults, setShowResults] = useState(0);
   const [originList, setOriginList] = useState([]);
   const [lastOriginList, setLastOriginList] = useState([]);
   const [destinationList, setDestinationList] = useState([]);
@@ -26,7 +26,7 @@ function App() {
     setTot(event.target.value);
   }
   function flipShowResults() {
-    setShowResults(showResults++);
+    setShowResults(showResults + 1);
   }
 
   function findDisplayName(needle) {
