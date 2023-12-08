@@ -152,10 +152,10 @@ function App() {
         originListFromParent={originList}
         destinationListFromParent={destinationList}
       />)}
-      <p>LatO:{originLat}</p>
+      {/* <p>LatO:{originLat}</p>
       <p>LonO{originLon}</p>
       <p>LatD:{destinationLat}</p>
-      <p>LonD:{destinationLon}</p>
+      <p>LonD:{destinationLon}</p> */}
       {showResults > 0 && (
         <Results
           totFromParent={tot}
