@@ -15,6 +15,11 @@ function App() {
   const [originLat, setOriginLat] = useState([]);
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
+  const [mode, setMode] = useState("")
+
+  function changeMode(newMode) {
+    setMode(newMode);
+  }
 
   function changeOrigin(event) {
     setTimeout(() => {
@@ -131,17 +136,22 @@ function App() {
 
   return (
     <>
-      <div>
-        <SearchFilters
-          changeOriginFromParent={changeOrigin}
-          changeDestinationFromParent={changeDestination}
-          changeTotFromParent={changeTot}
-          flipShowResultsFromParent={flipShowResults}
-          showResultsFromParent={showResults}
-          originListFromParent={originList}
-          destinationListFromParent={destinationList}
-        />
-      </div>
+      <br />
+      <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
+
+      <MainMenu changeModeFromParent={changeMode}/>
+
+
+
+      {mode==="car" && (<CarSearchFilters
+        changeOriginFromParent={changeOrigin}
+        changeDestinationFromParent={changeDestination}
+        changeTotFromParent={changeTot}
+        flipShowResultsFromParent={flipShowResults}
+        showResultsFromParent={showResults}
+        originListFromParent={originList}
+        destinationListFromParent={destinationList}
+      />)}
       <p>LatO:{originLat}</p>
       <p>LonO{originLon}</p>
       <p>LatD:{destinationLat}</p>
@@ -162,11 +172,38 @@ function App() {
   );
 }
 
-function SearchFilters(props) {
+function MainMenu(props) {
+  return (
+    <>
+      <div className="flex justify-center">
+        <button 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("car")}>
+        🚗 Car
+        </button>
+
+        <button 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("plane")}>
+        ✈️ Plane
+        </button>
+
+        <button 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("train")}
+        >
+          🚂 Train
+        </button>
+      </div>
+    </>
+  );
+}
+
+
+function CarSearchFilters(props) {
   return (
     <>
       <div class="container mx-auto p-12">
-        <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
 
         <div class="mb-4">
           <label class="text-sm font-medium text-gray-600">Origin</label>
@@ -260,4 +297,5 @@ function Results(props) {
     return null;
   }
 }
+
 export default App;
