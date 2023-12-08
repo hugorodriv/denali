@@ -15,6 +15,12 @@ function App() {
   const [originLat, setOriginLat] = useState([]);
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
+  const [mode, setMode] = useState("")
+
+  function changeMode(newMode) {
+    setMode(newMode);
+    setShowResults(0);
+  }
 
   function changeOrigin(event) {
     setTimeout(() => {
@@ -28,6 +34,7 @@ function App() {
   }
   function changeTot(event) {
     setTot(event.target.value);
+    setShowResults(0);
   }
   function flipShowResults() {
     setShowResults(showResults + 1);
@@ -131,21 +138,26 @@ function App() {
 
   return (
     <>
-      <div>
-        <SearchFilters
-          changeOriginFromParent={changeOrigin}
-          changeDestinationFromParent={changeDestination}
-          changeTotFromParent={changeTot}
-          flipShowResultsFromParent={flipShowResults}
-          showResultsFromParent={showResults}
-          originListFromParent={originList}
-          destinationListFromParent={destinationList}
-        />
-      </div>
-      <p>LatO:{originLat}</p>
+      <br />
+      <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
+
+      <MainMenu changeModeFromParent={changeMode} />
+
+
+
+      {mode === "car" && (<CarSearchFilters
+        changeOriginFromParent={changeOrigin}
+        changeDestinationFromParent={changeDestination}
+        changeTotFromParent={changeTot}
+        flipShowResultsFromParent={flipShowResults}
+        showResultsFromParent={showResults}
+        originListFromParent={originList}
+        destinationListFromParent={destinationList}
+      />)}
+      {/* <p>LatO:{originLat}</p>
       <p>LonO{originLon}</p>
       <p>LatD:{destinationLat}</p>
-      <p>LonD:{destinationLon}</p>
+      <p>LonD:{destinationLon}</p> */}
       {showResults > 0 && (
         <Results
           totFromParent={tot}
@@ -162,11 +174,38 @@ function App() {
   );
 }
 
-function SearchFilters(props) {
+function MainMenu(props) {
+  return (
+    <>
+      <div className="flex justify-center">
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("car")}>
+          🚗 Car
+        </button>
+
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("plane")}>
+          ✈️ Plane
+        </button>
+
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("train")}
+        >
+          🚂 Train
+        </button>
+      </div>
+    </>
+  );
+}
+
+
+function CarSearchFilters(props) {
   return (
     <>
       <div class="container mx-auto p-12">
-        <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
 
         <div class="mb-4">
           <label class="text-sm font-medium text-gray-600">Origin</label>
@@ -239,25 +278,32 @@ function Results(props) {
     props.destinationFromParent !== ""
   ) {
     return (
-      <div class="text-2xl text-center">
-        <p>
-          Traveling from {props.originFromParent} to{" "}
-          {props.destinationFromParent} by {props.totFromParent}.
+      <div className="text-2xl text-center">
+        <p className="mb-4">
+          Traveling from <span className="font-bold">{props.originFromParent.split(',')[0]}</span>{" "}
+          to{" "}
+          <span className="font-bold">{props.destinationFromParent.split(',')[0]}</span>{" "}
+          by{" "}
+          <span className="font-bold">{props.totFromParent}</span>.
         </p>
-        <p>CO2 amount: *TBD*</p>
+        <p className="mb-4">CO2 amount: <span className="font-bold">TBD</span></p>
         <p>
           Distance:{" "}
-          {props.calculateDistanceFromParent(
-            props.originLatFromParent,
-            props.originLonFromParent,
-            props.destinationLatFromParent,
-            props.destinationLonFromParent,
-          )}
+          <span className="font-bold">
+            {props.calculateDistanceFromParent(
+              props.originLatFromParent,
+              props.originLonFromParent,
+              props.destinationLatFromParent,
+              props.destinationLonFromParent,
+            ).toFixed(2)}{" km"}
+          </span>
         </p>
       </div>
     );
+    
   } else {
     return null;
   }
 }
+
 export default App;
