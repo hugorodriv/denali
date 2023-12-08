@@ -40,6 +40,26 @@ function App() {
     };
   }
 
+  function degreesToRadians(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    var earthRadiusKm = 6371;
+
+    var dLat = degreesToRadians(lat2 - lat1);
+    var dLon = degreesToRadians(lon2 - lon1);
+
+    lat1 = degreesToRadians(lat1);
+    lat2 = degreesToRadians(lat2);
+
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+
   useEffect(() => {
     // Get OriginData
     const URL = "https://geocode.maps.co/search?city=" + origin;
@@ -123,12 +143,17 @@ function App() {
       <p>LatO:{originLat}</p>
       <p>LonO{originLon}</p>
       <p>LatD:{destinationLat}</p>
-      <p>LonD{destinationLon}</p>
-      {showResults && (
+      <p>LonD:{destinationLon}</p>
+      {showResults > 0 && (
         <Results
           totFromParent={tot}
           originFromParent={origin}
           destinationFromParent={destination}
+          originLatFromParent={originLat}
+          originLonFromParent={originLon}
+          destinationLatFromParent={destinationLat}
+          destinationLonFromParent={destinationLon}
+          calculateDistanceFromParent={calculateDistance}
         />
       )}
     </>
@@ -215,8 +240,17 @@ function Results(props) {
       <div class="text-2xl text-center">
         <p>
           Traveling from {props.originFromParent} to{" "}
-          {props.destinationFromParent} by {props.totFromParent}, CO2 amount:
-          *TBD*
+          {props.destinationFromParent} by {props.totFromParent}.
+        </p>
+        <p>CO2 amount: *TBD*</p>
+        <p>
+          Distance:{" "}
+          {props.calculateDistanceFromParent(
+            props.originLatFromParent,
+            props.originLonFromParent,
+            props.destinationLatFromParent,
+            props.destinationLonFromParent,
+          )}
         </p>
       </div>
     );
