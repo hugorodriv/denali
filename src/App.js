@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
@@ -15,6 +16,7 @@ function App() {
   const [originLat, setOriginLat] = useState([]);
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
+  let tempTypeOfTrans = "car";
 
   function changeOrigin(event) {
     setTimeout(() => {
@@ -22,7 +24,9 @@ function App() {
     }, 1001);
   }
   function changeDestination(event) {
-    setDestination(event.target.value);
+    setTimeout(() => {
+      setDestination(event.target.value);
+    }, 1001);
   }
   function changeTot(event) {
     setTot(event.target.value);
@@ -33,10 +37,39 @@ function App() {
 
   function findDisplayName(needle) {
     return function (haystack) {
-      console.log(haystack.display_name);
-      console.log(needle);
-      console.log(haystack.display_name === needle);
       return haystack.display_name === needle;
+    };
+  }
+
+  function degreesToRadians(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    var earthRadiusKm = 6371;
+
+    var dLat = degreesToRadians(lat2 - lat1);
+    var dLon = degreesToRadians(lon2 - lon1);
+
+    lat1 = degreesToRadians(lat1);
+    lat2 = degreesToRadians(lat2);
+
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+
+  function filterTot(totCategory) {
+    return function (totObject) {
+      return totObject.category === totCategory;
+    };
+  }
+
+  function findTotForCo2() {
+    return function (haystack) {
+      return haystack.model === tot && haystack.category === tempTypeOfTrans;
     };
   }
 
@@ -118,17 +151,27 @@ function App() {
           showResultsFromParent={showResults}
           originListFromParent={originList}
           destinationListFromParent={destinationList}
+          transportationModelsFromParent={transportationModels}
+          filterTotFromParent={filterTot}
+          categoryFromParent={tempTypeOfTrans}
         />
       </div>
       <p>LatO:{originLat}</p>
       <p>LonO{originLon}</p>
       <p>LatD:{destinationLat}</p>
-      <p>LonD{destinationLon}</p>
-      {showResults && (
+      <p>LonD:{destinationLon}</p>
+      {showResults > 0 && (
         <Results
           totFromParent={tot}
           originFromParent={origin}
           destinationFromParent={destination}
+          originLatFromParent={originLat}
+          originLonFromParent={originLon}
+          destinationLatFromParent={destinationLat}
+          destinationLonFromParent={destinationLon}
+          calculateDistanceFromParent={calculateDistance}
+          findTotForCo2FromParent={findTotForCo2}
+          transportationModelsFromParent={transportationModels}
         />
       )}
     </>
@@ -174,20 +217,19 @@ function SearchFilters(props) {
         </div>
 
         <div class="mb-4">
-          <label class="text-sm font-medium text-gray-600">
-            Pick Transportation
-          </label>
+          <label class="text-sm font-medium text-gray-600">Pick a model</label>
           <select
             onChange={props.changeTotFromParent}
             class="mt-1 p-2 border rounded w-full"
           >
             <option value="" selected disabled>
-              Choose a type of transportation
+              Pick a model
             </option>
-            <option value="Car">Car</option>
-            <option value="EV">EV</option>
-            <option value="Train">Train</option>
-            <option value="Plane">Plane</option>
+            {props.transportationModelsFromParent
+              .filter(props.filterTotFromParent(props.categoryFromParent))
+              .map((p, index) => (
+                <option value={p.model}>{p.model}</option>
+              ))}
           </select>
         </div>
 
@@ -215,8 +257,30 @@ function Results(props) {
       <div class="text-2xl text-center">
         <p>
           Traveling from {props.originFromParent} to{" "}
-          {props.destinationFromParent} by {props.totFromParent}, CO2 amount:
-          *TBD*
+          {props.destinationFromParent} by {props.totFromParent}.
+        </p>
+        <p>
+          CO2 amount:{" "}
+          {props.transportationModelsFromParent[
+            props.transportationModelsFromParent.findIndex(
+              props.findTotForCo2FromParent(),
+            )
+          ].Co2PerKm *
+            props.calculateDistanceFromParent(
+              props.originLatFromParent,
+              props.originLonFromParent,
+              props.destinationLatFromParent,
+              props.destinationLonFromParent,
+            )}
+        </p>
+        <p>
+          Distance:{" "}
+          {props.calculateDistanceFromParent(
+            props.originLatFromParent,
+            props.originLonFromParent,
+            props.destinationLatFromParent,
+            props.destinationLonFromParent,
+          )}
         </p>
       </div>
     );
