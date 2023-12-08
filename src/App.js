@@ -22,7 +22,9 @@ function App() {
     }, 1001);
   }
   function changeDestination(event) {
-    setDestination(event.target.value);
+    setTimeout(() => {
+      setDestination(event.target.value);
+    }, 1001);
   }
   function changeTot(event) {
     setTot(event.target.value);
