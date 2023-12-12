@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import CarSearchFilters from "./Car.js";
 
+import AirportDisplayComponent from "./airports/Airports";
+
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -36,6 +38,9 @@ function App() {
   function changeTot(event) {
     setTot(event.target.value);
     setShowResults(0);
+  }
+  function changeModel(event) {
+    setModel(event.target.value);
   }
   function flipShowResults() {
     setShowResults(showResults + 1);
