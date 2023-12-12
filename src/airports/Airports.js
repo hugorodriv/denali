@@ -10,8 +10,6 @@ function Airports() {
   // search term to search airports
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-  const [originCoords, setOriginCoords] = useState([0, 0]);
-  const [destCoords, setDestCoords] = useState([0, 0]);
 
   useEffect(() => {
     const URL =
@@ -38,16 +36,6 @@ function Airports() {
   function changeDestination(event) {
     setDestination(event.target.value);
   }
-  function changeOriginCoords(lat, lng) {
-    try {
-      setOriginCoords([lat, lng]);
-    } catch {}
-  }
-  function changeDestCoords(lat, lng) {
-    try {
-      setDestCoords([lat, lng]);
-    } catch {}
-  }
 
   if (error) {
     return <h1>Opps! An error has occurred: {error.toString()}</h1>;
@@ -62,8 +50,6 @@ function Airports() {
           destinationFromParent={destination}
           changeOrigin={changeOrigin}
           changeDestination={changeDestination}
-          changeOriginCoords={changeOriginCoords}
-          changeDestCoords={changeDestCoords}
         />
       </>
     );
@@ -80,8 +66,6 @@ function AirportDisplayComponent(props) {
           changeDestinationFromParent={props.changeDestination}
           origin={props.originFromParent}
           destination={props.destinationFromParent}
-          changeOriginCoords={props.changeOriginCoords}
-          changeDestCoords={props.changeDestCoords}
         />
         <AirportResults
           APIData={props.APIData}
