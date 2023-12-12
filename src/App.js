@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import CarSearchFilters from "./Car.js";
 
+import CarSearchFilters from "./Car.js";
 import AirportDisplayComponent from "./airports/Airports";
 
 function App() {
@@ -40,7 +40,7 @@ function App() {
     setShowResults(0);
   }
   function changeModel(event) {
-    setModel(event.target.value);
+    setMode(event.target.value);
   }
   function flipShowResults() {
     setShowResults(showResults + 1);
@@ -160,10 +160,16 @@ function App() {
         originListFromParent={originList}
         destinationListFromParent={destinationList}
       />)}
-      {/* <p>LatO:{originLat}</p>
-      <p>LonO{originLon}</p>
-      <p>LatD:{destinationLat}</p>
-      <p>LonD:{destinationLon}</p> */}
+
+      {mode === "plane" && (<AirportDisplayComponent
+          changeOriginFromParent={changeOrigin}
+          changeDestinationFromParent={changeDestination}
+          changeTotFromParent={changeTot}
+          flipShowResultsFromParent={flipShowResults}
+          showResultsFromParent={showResults}
+        />
+      )}
+
       {showResults > 0 && (
         <Results
           totFromParent={tot}
