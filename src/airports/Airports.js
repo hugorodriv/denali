@@ -10,6 +10,8 @@ function Airports() {
   // search term to search airports
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [originCoords, setOriginCoords] = useState([0, 0]);
+  const [destCoords, setDestCoords] = useState([0, 0]);
 
   useEffect(() => {
     const URL =
@@ -36,6 +38,27 @@ function Airports() {
   function changeDestination(event) {
     setDestination(event.target.value);
   }
+  function changeOriginCoords(event) {
+    setOriginCoords((event.target.value.lat, event.target.value.lng));
+  }
+  function changeDestCoords(event) {
+    setDestCoords((event.target.value.lat, event.target.value.lng));
+  }
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    var earthRadiusKm = 6371;
+
+    var dLat = Math.degreesToRadians(lat2 - lat1);
+    var dLon = Math.degreesToRadians(lon2 - lon1);
+
+    lat1 = Math.degreesToRadians(lat1);
+    lat2 = Math.degreesToRadians(lat2);
+
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
 
   if (error) {
     return <h1>Opps! An error has occurred: {error.toString()}</h1>;
@@ -50,6 +73,9 @@ function Airports() {
           destinationFromParent={destination}
           changeOrigin={changeOrigin}
           changeDestination={changeDestination}
+          calculateDistance={calculateDistance}
+          changeOriginCoords={changeOriginCoords}
+          changeDestCoords={changeDestCoords}
         />
       </>
     );
@@ -66,6 +92,14 @@ function AirportDisplayComponent(props) {
           changeDestinationFromParent={props.changeDestination}
           origin={props.originFromParent}
           destination={props.destinationFromParent}
+          changeOriginCoords={props.changeOriginCoords}
+          changeDestCoords={props.changeDestCoords}
+        />
+        <AirportResults
+          APIData={props.APIData}
+          origin={props.originFromParent}
+          destination={props.destinationFromParent}
+          calculateDistance={props.calculateDistance}
         />
       </div>
     </>
@@ -129,5 +163,36 @@ function SearchFilters(props) {
       </div>
     </>
   );
+}
+
+function AirportResults(props) {
+  try {
+    console.log(props.origin);
+  } catch {
+    console.log("oops");
+  }
+  let distance = 0;
+  try {
+    distance = props.calculateDistance(
+      props.origin.lat,
+      props.origin.lng,
+      props.destination.lat,
+      props.destination.lng,
+    );
+  } catch {
+    distance = "Select valid airports";
+  }
+  if (props.origin !== "" && props.destination !== "") {
+    return (
+      <div class="text-2xl text-center">
+        <p>
+          Traveling from {props.origin} to {props.destination}, distance:{" "}
+          {distance}
+        </p>
+      </div>
+    );
+  } else {
+    return null;
+  }
 }
 export default Airports;
