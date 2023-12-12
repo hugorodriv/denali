@@ -38,26 +38,15 @@ function Airports() {
   function changeDestination(event) {
     setDestination(event.target.value);
   }
-  function changeOriginCoords(event) {
-    setOriginCoords((event.target.value.lat, event.target.value.lng));
+  function changeOriginCoords(lat, lng) {
+    try {
+      setOriginCoords([lat, lng]);
+    } catch {}
   }
-  function changeDestCoords(event) {
-    setDestCoords((event.target.value.lat, event.target.value.lng));
-  }
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    var earthRadiusKm = 6371;
-
-    var dLat = Math.degreesToRadians(lat2 - lat1);
-    var dLon = Math.degreesToRadians(lon2 - lon1);
-
-    lat1 = Math.degreesToRadians(lat1);
-    lat2 = Math.degreesToRadians(lat2);
-
-    var a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return earthRadiusKm * c;
+  function changeDestCoords(lat, lng) {
+    try {
+      setDestCoords([lat, lng]);
+    } catch {}
   }
 
   if (error) {
@@ -73,7 +62,6 @@ function Airports() {
           destinationFromParent={destination}
           changeOrigin={changeOrigin}
           changeDestination={changeDestination}
-          calculateDistance={calculateDistance}
           changeOriginCoords={changeOriginCoords}
           changeDestCoords={changeDestCoords}
         />
@@ -99,7 +87,6 @@ function AirportDisplayComponent(props) {
           APIData={props.APIData}
           origin={props.originFromParent}
           destination={props.destinationFromParent}
-          calculateDistance={props.calculateDistance}
         />
       </div>
     </>
@@ -166,20 +153,54 @@ function SearchFilters(props) {
 }
 
 function AirportResults(props) {
+  function AirportFilterFunction(searchTerm) {
+    return function (airportObject) {
+      let country_code = airportObject.country_code.toLowerCase();
+      let name = airportObject.name.toLowerCase();
+      let search = searchTerm.toLowerCase();
+      return (
+        (search !== "" && country_code.includes(search)) ||
+        name.includes(search)
+      );
+    };
+  }
+  function degreesToRadians(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    var earthRadiusKm = 6371;
+
+    var dLat = degreesToRadians(lat2 - lat1);
+    var dLon = degreesToRadians(lon2 - lon1);
+    console.log(dLat, dLon);
+    lat1 = degreesToRadians(lat1);
+    lat2 = degreesToRadians(lat2);
+
+    var a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+  let lat1 = 0;
+  let lat2 = 0;
+  let lng1 = 0;
+  let lng2 = 0;
   try {
-    console.log(props.origin);
+    props.APIData.filter(AirportFilterFunction(props.origin)).map(
+      (p, index) => ((lat1 = p.lat), (lng1 = p.lng)),
+    );
+    props.APIData.filter(AirportFilterFunction(props.destination)).map(
+      (p, index) => ((lat2 = p.lat), (lng2 = p.lng)),
+    );
   } catch {
     console.log("oops");
   }
-  let distance = 0;
+  let distance = 0.0;
   try {
-    distance = props.calculateDistance(
-      props.origin.lat,
-      props.origin.lng,
-      props.destination.lat,
-      props.destination.lng,
-    );
-  } catch {
+    distance = calculateDistance(lat1, lng1, lat2, lng2);
+  } catch (error) {
+    console.log(error);
     distance = "Select valid airports";
   }
   if (props.origin !== "" && props.destination !== "") {
