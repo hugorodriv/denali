@@ -10,8 +10,6 @@ function Airports() {
   // search term to search airports
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-  const [originCoords, setOriginCoords] = useState([0, 0]);
-  const [destCoords, setDestCoords] = useState([0, 0]);
 
   useEffect(() => {
     const URL =
