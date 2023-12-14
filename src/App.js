@@ -41,6 +41,7 @@ function App() {
     setTot(event.target.value);
     setShowResults(0);
   }
+
   function changeTransportationModel(event) {
     setTransportationModel(event.target.value);
   }
