@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
 import AirportDisplayComponent from "./airports/Airports";
+import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [tot, setTot] = useState("");
+  const [transportationModel, setTransportationModel] = useState("");
   const [showResults, setShowResults] = useState(0);
   const [originList, setOriginList] = useState([]);
   const [lastOriginList, setLastOriginList] = useState([]);
@@ -18,7 +20,7 @@ function App() {
   const [originLat, setOriginLat] = useState([]);
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
-  const [mode, setMode] = useState("")
+  const [mode, setMode] = useState("");
 
   function changeMode(newMode) {
     setMode(newMode);
@@ -39,8 +41,9 @@ function App() {
     setTot(event.target.value);
     setShowResults(0);
   }
-  function changeModel(event) {
-    setMode(event.target.value);
+
+  function changeTransportationModel(event) {
+    setTransportationModel(event.target.value);
   }
   function flipShowResults() {
     setShowResults(showResults + 1);
@@ -73,6 +76,20 @@ function App() {
       Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return earthRadiusKm * c;
+  }
+
+  function findTotForCo2() {
+    return function (haystack) {
+      return (
+        haystack.model === transportationModel && haystack.category === mode
+      );
+    };
+  }
+
+  function filterTot(totCategory) {
+    return function (totObject) {
+      return totObject.category === totCategory;
+    };
   }
 
   useEffect(() => {
@@ -149,19 +166,23 @@ function App() {
 
       <MainMenu changeModeFromParent={changeMode} />
 
+      {mode === "car" && (
+        <CarSearchFilters
+          changeOriginFromParent={changeOrigin}
+          changeDestinationFromParent={changeDestination}
+          changeModelFromParent={changeTransportationModel}
+          flipShowResultsFromParent={flipShowResults}
+          showResultsFromParent={showResults}
+          originListFromParent={originList}
+          destinationListFromParent={destinationList}
+          transportationModelsFromParent={transportationModels}
+          filterTotFromParent={filterTot}
+          categoryFromParent={mode}
+        />
+      )}
 
-
-      {mode === "car" && (<CarSearchFilters
-        changeOriginFromParent={changeOrigin}
-        changeDestinationFromParent={changeDestination}
-        changeTotFromParent={changeTot}
-        flipShowResultsFromParent={flipShowResults}
-        showResultsFromParent={showResults}
-        originListFromParent={originList}
-        destinationListFromParent={destinationList}
-      />)}
-
-      {mode === "plane" && (<AirportDisplayComponent
+      {mode === "plane" && (
+        <AirportDisplayComponent
           changeOriginFromParent={changeOrigin}
           changeDestinationFromParent={changeDestination}
           changeTotFromParent={changeTot}
@@ -180,6 +201,9 @@ function App() {
           destinationLatFromParent={destinationLat}
           destinationLonFromParent={destinationLon}
           calculateDistanceFromParent={calculateDistance}
+          findTotForCo2FromParent={findTotForCo2}
+          transportationModelsFromParent={transportationModels}
+          transportationModelFromParent={transportationModel}
         />
       )}
     </>
@@ -192,13 +216,15 @@ function MainMenu(props) {
       <div className="flex justify-center">
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-          onClick={() => props.changeModeFromParent("car")}>
+          onClick={() => props.changeModeFromParent("car")}
+        >
           🚗 Car
         </button>
 
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-          onClick={() => props.changeModeFromParent("plane")}>
+          onClick={() => props.changeModeFromParent("plane")}
+        >
           ✈️ Plane
         </button>
 
@@ -213,39 +239,64 @@ function MainMenu(props) {
   );
 }
 
-
-
-
 function Results(props) {
   if (
-    props.totFromParent !== "" &&
+    props.transportationModelFromParent !== "" &&
     props.originFromParent !== "" &&
     props.destinationFromParent !== ""
   ) {
     return (
       <div className="text-2xl text-center">
         <p className="mb-4">
-          Traveling from <span className="font-bold">{props.originFromParent.split(',')[0]}</span>{" "}
+          Traveling from{" "}
+          <span className="font-bold">
+            {props.originFromParent.split(",")[0]}
+          </span>{" "}
           to{" "}
-          <span className="font-bold">{props.destinationFromParent.split(',')[0]}</span>{" "}
+          <span className="font-bold">
+            {props.destinationFromParent.split(",")[0]}
+          </span>{" "}
           by{" "}
-          <span className="font-bold">{props.totFromParent}</span>.
+          <span className="font-bold">
+            {props.transportationModelFromParent}
+          </span>
+          .
         </p>
-        <p className="mb-4">CO2 amount: <span className="font-bold">TBD</span></p>
+        <p className="mb-4">
+          CO2 amount:{" "}
+          <span className="font-bold">
+            {(
+              props.transportationModelsFromParent[
+                props.transportationModelsFromParent.findIndex(
+                  props.findTotForCo2FromParent(),
+                )
+              ].Co2PerKm *
+              props.calculateDistanceFromParent(
+                props.originLatFromParent,
+                props.originLonFromParent,
+                props.destinationLatFromParent,
+                props.destinationLonFromParent,
+              )
+            ).toFixed(2)}
+            {" kg"}
+          </span>
+        </p>
         <p>
           Distance:{" "}
           <span className="font-bold">
-            {props.calculateDistanceFromParent(
-              props.originLatFromParent,
-              props.originLonFromParent,
-              props.destinationLatFromParent,
-              props.destinationLonFromParent,
-            ).toFixed(2)}{" km"}
+            {props
+              .calculateDistanceFromParent(
+                props.originLatFromParent,
+                props.originLonFromParent,
+                props.destinationLatFromParent,
+                props.destinationLonFromParent,
+              )
+              .toFixed(2)}
+            {" km"}
           </span>
         </p>
       </div>
     );
-    
   } else {
     return null;
   }
