@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+
+import CarSearchFilters from "./Car.js";
+import AirportDisplayComponent from "./airports/Airports";
 import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [tot, setTot] = useState("");
+  const [transportationModel, setTransportationModel] = useState("");
   const [showResults, setShowResults] = useState(0);
   const [originList, setOriginList] = useState([]);
   const [lastOriginList, setLastOriginList] = useState([]);
@@ -16,7 +20,12 @@ function App() {
   const [originLat, setOriginLat] = useState([]);
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
-  let tempTypeOfTrans = "car";
+  const [mode, setMode] = useState("");
+
+  function changeMode(newMode) {
+    setMode(newMode);
+    setShowResults(0);
+  }
 
   function changeOrigin(event) {
     setTimeout(() => {
@@ -30,6 +39,11 @@ function App() {
   }
   function changeTot(event) {
     setTot(event.target.value);
+    setShowResults(0);
+  }
+
+  function changeTransportationModel(event) {
+    setTransportationModel(event.target.value);
   }
   function flipShowResults() {
     setShowResults(showResults + 1);
@@ -37,6 +51,9 @@ function App() {
 
   function findDisplayName(needle) {
     return function (haystack) {
+      console.log(haystack.display_name);
+      console.log(needle);
+      console.log(haystack.display_name === needle);
       return haystack.display_name === needle;
     };
   }
@@ -61,15 +78,17 @@ function App() {
     return earthRadiusKm * c;
   }
 
-  function filterTot(totCategory) {
-    return function (totObject) {
-      return totObject.category === totCategory;
+  function findTotForCo2() {
+    return function (haystack) {
+      return (
+        haystack.model === transportationModel && haystack.category === mode
+      );
     };
   }
 
-  function findTotForCo2() {
-    return function (haystack) {
-      return haystack.model === tot && haystack.category === tempTypeOfTrans;
+  function filterTot(totCategory) {
+    return function (totObject) {
+      return totObject.category === totCategory;
     };
   }
 
@@ -142,24 +161,36 @@ function App() {
 
   return (
     <>
-      <div>
-        <SearchFilters
+      <br />
+      <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
+
+      <MainMenu changeModeFromParent={changeMode} />
+
+      {mode === "car" && (
+        <CarSearchFilters
           changeOriginFromParent={changeOrigin}
           changeDestinationFromParent={changeDestination}
-          changeTotFromParent={changeTot}
+          changeModelFromParent={changeTransportationModel}
           flipShowResultsFromParent={flipShowResults}
           showResultsFromParent={showResults}
           originListFromParent={originList}
           destinationListFromParent={destinationList}
           transportationModelsFromParent={transportationModels}
           filterTotFromParent={filterTot}
-          categoryFromParent={tempTypeOfTrans}
+          categoryFromParent={mode}
         />
-      </div>
-      <p>LatO:{originLat}</p>
-      <p>LonO{originLon}</p>
-      <p>LatD:{destinationLat}</p>
-      <p>LonD:{destinationLon}</p>
+      )}
+
+      {mode === "plane" && (
+        <AirportDisplayComponent
+          changeOriginFromParent={changeOrigin}
+          changeDestinationFromParent={changeDestination}
+          changeTotFromParent={changeTot}
+          flipShowResultsFromParent={flipShowResults}
+          showResultsFromParent={showResults}
+        />
+      )}
+
       {showResults > 0 && (
         <Results
           totFromParent={tot}
@@ -172,76 +203,37 @@ function App() {
           calculateDistanceFromParent={calculateDistance}
           findTotForCo2FromParent={findTotForCo2}
           transportationModelsFromParent={transportationModels}
+          transportationModelFromParent={transportationModel}
         />
       )}
     </>
   );
 }
 
-function SearchFilters(props) {
+function MainMenu(props) {
   return (
     <>
-      <div class="container mx-auto p-12">
-        <h1 class="text-3xl text-center mb-8">CO2 Emissions Calculator</h1>
+      <div className="flex justify-center">
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("car")}
+        >
+          🚗 Car
+        </button>
 
-        <div class="mb-4">
-          <label class="text-sm font-medium text-gray-600">Origin</label>
-          <input
-            onChange={props.changeOriginFromParent}
-            class="mt-1 p-2 border rounded w-full"
-            list="origin-list"
-          />
-          <datalist id="origin-list">
-            {props.originListFromParent.map((p, index) => (
-              <div lon={p.lon} lat={p.lat}>
-                <option value={p.display_name}></option>
-              </div>
-            ))}
-          </datalist>
-        </div>
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("plane")}
+        >
+          ✈️ Plane
+        </button>
 
-        <div class="mb-4">
-          <label class="text-sm font-medium text-gray-600">Destination</label>
-          <input
-            onChange={props.changeDestinationFromParent}
-            class="mt-1 p-2 border rounded w-full"
-            list="destination-list"
-          />
-          <datalist id="destination-list">
-            {props.destinationListFromParent.map((p, index) => (
-              <div lon={p.lon} lat={p.lat}>
-                <option value={p.display_name}></option>
-              </div>
-            ))}
-          </datalist>
-        </div>
-
-        <div class="mb-4">
-          <label class="text-sm font-medium text-gray-600">Pick a model</label>
-          <select
-            onChange={props.changeTotFromParent}
-            class="mt-1 p-2 border rounded w-full"
-          >
-            <option value="" selected disabled>
-              Pick a model
-            </option>
-            {props.transportationModelsFromParent
-              .filter(props.filterTotFromParent(props.categoryFromParent))
-              .map((p, index) => (
-                <option value={p.model}>{p.model}</option>
-              ))}
-          </select>
-        </div>
-
-        <div class="text-center">
-          <button
-            onClick={props.flipShowResultsFromParent}
-            type="button"
-            class="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Calculate CO2 Emissions
-          </button>
-        </div>
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+          onClick={() => props.changeModeFromParent("train")}
+        >
+          🚂 Train
+        </button>
       </div>
     </>
   );
@@ -249,38 +241,59 @@ function SearchFilters(props) {
 
 function Results(props) {
   if (
-    props.totFromParent !== "" &&
+    props.transportationModelFromParent !== "" &&
     props.originFromParent !== "" &&
     props.destinationFromParent !== ""
   ) {
     return (
-      <div class="text-2xl text-center">
-        <p>
-          Traveling from {props.originFromParent} to{" "}
-          {props.destinationFromParent} by {props.totFromParent}.
+      <div className="text-2xl text-center">
+        <p className="mb-4">
+          Traveling from{" "}
+          <span className="font-bold">
+            {props.originFromParent.split(",")[0]}
+          </span>{" "}
+          to{" "}
+          <span className="font-bold">
+            {props.destinationFromParent.split(",")[0]}
+          </span>{" "}
+          by{" "}
+          <span className="font-bold">
+            {props.transportationModelFromParent}
+          </span>
+          .
         </p>
-        <p>
+        <p className="mb-4">
           CO2 amount:{" "}
-          {props.transportationModelsFromParent[
-            props.transportationModelsFromParent.findIndex(
-              props.findTotForCo2FromParent(),
-            )
-          ].Co2PerKm *
-            props.calculateDistanceFromParent(
-              props.originLatFromParent,
-              props.originLonFromParent,
-              props.destinationLatFromParent,
-              props.destinationLonFromParent,
-            )}
+          <span className="font-bold">
+            {(
+              props.transportationModelsFromParent[
+                props.transportationModelsFromParent.findIndex(
+                  props.findTotForCo2FromParent(),
+                )
+              ].Co2PerKm *
+              props.calculateDistanceFromParent(
+                props.originLatFromParent,
+                props.originLonFromParent,
+                props.destinationLatFromParent,
+                props.destinationLonFromParent,
+              )
+            ).toFixed(2)}
+            {" kg"}
+          </span>
         </p>
         <p>
           Distance:{" "}
-          {props.calculateDistanceFromParent(
-            props.originLatFromParent,
-            props.originLonFromParent,
-            props.destinationLatFromParent,
-            props.destinationLonFromParent,
-          )}
+          <span className="font-bold">
+            {props
+              .calculateDistanceFromParent(
+                props.originLatFromParent,
+                props.originLonFromParent,
+                props.destinationLatFromParent,
+                props.destinationLonFromParent,
+              )
+              .toFixed(2)}
+            {" km"}
+          </span>
         </p>
       </div>
     );
@@ -288,4 +301,5 @@ function Results(props) {
     return null;
   }
 }
+
 export default App;
