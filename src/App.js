@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
-import AirportDisplayComponent from "./airports/Airports";
+import AirportDisplayComponent from "./Airports.js";
 import { transportationModels } from "./transportation";
 
 function App() {
