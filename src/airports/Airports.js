@@ -36,6 +36,11 @@ function Airports() {
   function changeDestination(event) {
     setDestination(event.target.value);
   }
+  function calculateEmissions(distance) {
+    //carbon emissions calculated by average for Boeing 737-400 by
+    //https://www.carbonindependent.org/22.html#:~:text=CO2%20emissions%20from%20aviation%20fuel,CO2%20per%20passenger%20per%20hour.
+    return (distance * 115) / 1000; //emissions in kg
+  }
 
   if (error) {
     return <h1>Opps! An error has occurred: {error.toString()}</h1>;
@@ -50,6 +55,7 @@ function Airports() {
           destinationFromParent={destination}
           changeOrigin={changeOrigin}
           changeDestination={changeDestination}
+          calculateEmissions={calculateEmissions}
         />
       </>
     );
@@ -71,6 +77,9 @@ function AirportDisplayComponent(props) {
           APIData={props.APIData}
           origin={props.originFromParent}
           destination={props.destinationFromParent}
+          calculateEmissions={props.calculateEmissions}
+          showResultsFromParent={props.showResultsFromParent}
+          flipShowResultsFromParent={props.flipShowResultsFromParent}
         />
       </div>
     </>
@@ -181,8 +190,10 @@ function AirportResults(props) {
     console.log("oops");
   }
   let distance = 0.0;
+  let emissions = 0.0;
   try {
     distance = calculateDistance(lat1, lng1, lat2, lng2);
+    emissions = props.calculateEmissions(distance);
   } catch (error) {
     console.log(error);
     distance = "Select valid airports";
@@ -190,9 +201,16 @@ function AirportResults(props) {
   if (props.origin !== "" && props.destination !== "") {
     return (
       <div class="text-2xl text-center">
+        <button
+          onClick={props.flipShowResultsFromParent}
+          type="button"
+          class="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Calculate CO2 Emissions
+        </button>
         <p>
           Traveling from {props.origin} to {props.destination}, distance:{" "}
-          {distance}
+          {distance.toFixed(2)} km, emissions: {emissions.toFixed(2)} kg
         </p>
       </div>
     );
