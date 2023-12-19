@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
-import AirportSearchFilters from "./airports/Airports.js";
+import AirportSearchFilters from "./Airports.js";
 import { transportationModels } from "./transportation";
 
 function App() {
@@ -42,9 +42,15 @@ function App() {
   }
   function changeAirportOrigin(event) {
     setAirportOrigin(event.target.value);
+    airportData
+      .filter(AirportFilterFunction(airportOrigin))
+      .map((p, index) => ((lat1 = p.lat), (lng1 = p.lng)));
   }
   function changeAirportDestination(event) {
     setAirportDestination(event.target.value);
+    airportData
+      .filter(AirportFilterFunction(airportDestination))
+      .map((p, index) => ((lat2 = p.lat), (lng2 = p.lng)));
   }
   function changeTot(event) {
     setTot(event.target.value);
@@ -98,6 +104,18 @@ function App() {
   function filterTot(totCategory) {
     return function (totObject) {
       return totObject.category === totCategory;
+    };
+  }
+
+  function AirportFilterFunction(searchTerm) {
+    return function (airportObject) {
+      let country_code = airportObject.country_code.toLowerCase();
+      let name = airportObject.name.toLowerCase();
+      let search = searchTerm.toLowerCase();
+      return (
+        (search !== "" && country_code.includes(search)) ||
+        name.includes(search)
+      );
     };
   }
 
@@ -242,8 +260,8 @@ function App() {
       {showResults > 0 && mode === "plane" && (
         <Results
           totFromParent={tot}
-          originFromParent={origin}
-          destinationFromParent={destination}
+          originFromParent={airportOrigin}
+          destinationFromParent={airportDestination}
           originLatFromParent={originLat}
           originLonFromParent={originLon}
           destinationLatFromParent={destinationLat}
