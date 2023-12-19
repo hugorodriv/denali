@@ -42,15 +42,19 @@ function App() {
   }
   function changeAirportOrigin(event) {
     setAirportOrigin(event.target.value);
+    let lat1 = 0;
+    let lng1 = 0;
     airportData
       .filter(AirportFilterFunction(airportOrigin))
-      .map((p, index) => ((lat1 = p.lat), (lng1 = p.lng)));
+      .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng)));
   }
   function changeAirportDestination(event) {
     setAirportDestination(event.target.value);
+    let lat2 = 0;
+    let lng2 = 0;
     airportData
       .filter(AirportFilterFunction(airportDestination))
-      .map((p, index) => ((lat2 = p.lat), (lng2 = p.lng)));
+      .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng)));
   }
   function changeTot(event) {
     setTot(event.target.value);
