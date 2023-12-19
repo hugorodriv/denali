@@ -54,6 +54,24 @@ function AirportSearchFilters(props) {
             )}
           </datalist>
         </div>
+
+        <div class="mb-4">
+          <label class="text-sm font-medium text-gray-600">Pick a model</label>
+          <select
+            onChange={props.changeModelFromParent}
+            class="mt-1 p-2 border rounded w-full"
+          >
+            <option value="" selected disabled>
+              Pick a model
+            </option>
+            {props.transportationModelsFromParent
+              .filter(props.filterTotFromParent(props.categoryFromParent))
+              .map((p, index) => (
+                <option value={p.model}>{p.model}</option>
+              ))}
+          </select>
+        </div>
+
         <div class="text-center">
           <button
             onClick={props.flipShowResultsFromParent}
