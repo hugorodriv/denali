@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
 import AirportSearchFilters from "./Airports.js";
+import TrainSearchFilters from "./Trains.js";
 import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [trainOrigin, setTrainOrigin] = useState("");
+  const [trainDestination, setTrainDestination] = useState("");
   const [airportOrigin, setAirportOrigin] = useState("");
   const [airportDestination, setAirportDestination] = useState("");
   const [tot, setTot] = useState("");
@@ -24,6 +27,7 @@ function App() {
   const [destinationLat, setDestinationLat] = useState([]);
   const [mode, setMode] = useState("");
   const [airportData, setAirportData] = useState([]);
+  const [trainData, setTrainData] = useState([]);
 
   function changeMode(newMode) {
     setMode(newMode);
@@ -42,19 +46,36 @@ function App() {
   }
   function changeAirportOrigin(event) {
     setAirportOrigin(event.target.value);
-    let lat1 = 0;
-    let lng1 = 0;
     airportData
-      .filter(AirportFilterFunction(airportOrigin))
+      .filter(airportFilterFunction(airportOrigin))
       .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng)));
   }
   function changeAirportDestination(event) {
     setAirportDestination(event.target.value);
-    let lat2 = 0;
-    let lng2 = 0;
     airportData
-      .filter(AirportFilterFunction(airportDestination))
+      .filter(airportFilterFunction(airportDestination))
       .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng)));
+  }
+  function changeTrainOrigin(event) {
+    setTrainOrigin(event.target.value);
+    trainData
+      .filter(trainFilterFunction(trainOrigin))
+      .map(
+        (p, index) => (
+          setOriginLat(p.StationLatitude), setOriginLon(p.StationLongitude)
+        ),
+      );
+  }
+  function changeTrainDestination(event) {
+    setTrainDestination(event.target.value);
+    trainData
+      .filter(trainFilterFunction(trainDestination))
+      .map(
+        (p, index) => (
+          setDestinationLat(p.StationLatitude),
+          setDestinationLon(p.StationLongitude)
+        ),
+      );
   }
   function changeTot(event) {
     setTot(event.target.value);
@@ -111,7 +132,7 @@ function App() {
     };
   }
 
-  function AirportFilterFunction(searchTerm) {
+  function airportFilterFunction(searchTerm) {
     return function (airportObject) {
       let country_code = airportObject.country_code.toLowerCase();
       let name = airportObject.name.toLowerCase();
@@ -120,6 +141,13 @@ function App() {
         (search !== "" && country_code.includes(search)) ||
         name.includes(search)
       );
+    };
+  }
+
+  function trainFilterFunction(searchTerm) {
+    return function (stationObject) {
+      let loco = stationObject.StationDesc.toLowerCase();
+      return searchTerm !== "" && loco.includes(searchTerm.toLowerCase());
     };
   }
 
@@ -209,6 +237,23 @@ function App() {
     fetchAirportData();
   }, []);
 
+  useEffect(() => {
+    const URL =
+      "https://raw.githubusercontent.com/hugorodriv/denali/main/public/Station";
+    async function fetchTrainData() {
+      try {
+        const response = await fetch(URL);
+        const TrainDatajson = await response.json();
+        setLoading(true);
+        setTrainData(TrainDatajson.objStation);
+      } catch (error) {
+        setError(error);
+        setLoading(false);
+      }
+    }
+    fetchTrainData();
+  }, []);
+
   return (
     <>
       <br />
@@ -243,8 +288,27 @@ function App() {
           categoryFromParent={mode}
           transportationModelsFromParent={transportationModels}
           filterTotFromParent={filterTot}
+          airportFilterFunctionFromParent={airportFilterFunction}
         />
       )}
+
+      {mode === "train" && (
+        <TrainSearchFilters
+          APIData={trainData}
+          changeOriginFromParent={changeTrainOrigin}
+          changeDestinationFromParent={changeTrainDestination}
+          origin={trainOrigin}
+          destination={trainDestination}
+          changeModelFromParent={changeTransportationModel}
+          flipShowResultsFromParent={flipShowResults}
+          categoryFromParent={mode}
+          transportationModelsFromParent={transportationModels}
+          filterTotFromParent={filterTot}
+          trainFilterFunctionFromParent={trainFilterFunction}
+        />
+      )}
+
+      <NetworkConnection errorFromParent={error} loadingFromParent={loading} />
 
       {showResults > 0 && mode === "car" && (
         <Results
@@ -266,6 +330,21 @@ function App() {
           totFromParent={tot}
           originFromParent={airportOrigin}
           destinationFromParent={airportDestination}
+          originLatFromParent={originLat}
+          originLonFromParent={originLon}
+          destinationLatFromParent={destinationLat}
+          destinationLonFromParent={destinationLon}
+          calculateDistanceFromParent={calculateDistance}
+          findTotForCo2FromParent={findTotForCo2}
+          transportationModelsFromParent={transportationModels}
+          transportationModelFromParent={transportationModel}
+        />
+      )}
+      {showResults > 0 && mode === "train" && (
+        <Results
+          totFromParent={tot}
+          originFromParent={trainOrigin}
+          destinationFromParent={trainDestination}
           originLatFromParent={originLat}
           originLonFromParent={originLon}
           destinationLatFromParent={destinationLat}
@@ -360,6 +439,16 @@ function Results(props) {
       </p>
     </div>
   );
+}
+
+function NetworkConnection(props) {
+  if (props.errorFromParent) {
+    return (
+      <h2>Page cannot be loaded due to {props.errorFromParent.toString()}</h2>
+    );
+  } else if (props.loadingFromParent === false) {
+    return <h2>Please wait while page is loading</h2>;
+  }
 }
 
 export default App;
