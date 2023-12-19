@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
-import AirportDisplayComponent from "./Airports.js";
+import AirportSearchFilters from "./Airports.js";
 import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [airportOrigin, setAirportOrigin] = useState("");
+  const [airportDestination, setAirportDestination] = useState("");
   const [tot, setTot] = useState("");
   const [transportationModel, setTransportationModel] = useState("");
   const [showResults, setShowResults] = useState(0);
@@ -21,6 +23,7 @@ function App() {
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
   const [mode, setMode] = useState("");
+  const [airportData, setAirportData] = useState([]);
 
   function changeMode(newMode) {
     setMode(newMode);
@@ -36,6 +39,22 @@ function App() {
     setTimeout(() => {
       setDestination(event.target.value);
     }, 1001);
+  }
+  function changeAirportOrigin(event) {
+    setAirportOrigin(event.target.value);
+    let lat1 = 0;
+    let lng1 = 0;
+    airportData
+      .filter(AirportFilterFunction(airportOrigin))
+      .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng)));
+  }
+  function changeAirportDestination(event) {
+    setAirportDestination(event.target.value);
+    let lat2 = 0;
+    let lng2 = 0;
+    airportData
+      .filter(AirportFilterFunction(airportDestination))
+      .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng)));
   }
   function changeTot(event) {
     setTot(event.target.value);
@@ -89,6 +108,18 @@ function App() {
   function filterTot(totCategory) {
     return function (totObject) {
       return totObject.category === totCategory;
+    };
+  }
+
+  function AirportFilterFunction(searchTerm) {
+    return function (airportObject) {
+      let country_code = airportObject.country_code.toLowerCase();
+      let name = airportObject.name.toLowerCase();
+      let search = searchTerm.toLowerCase();
+      return (
+        (search !== "" && country_code.includes(search)) ||
+        name.includes(search)
+      );
     };
   }
 
@@ -159,6 +190,25 @@ function App() {
     fetchData();
   }, [destination]);
 
+  useEffect(() => {
+    const URL =
+      "https://airlabs.co/api/v9/airports?api_key=8e4dc1c1-49d5-427f-902a-9dac726afc04";
+
+    async function fetchAirportData() {
+      try {
+        const response = await fetch(URL);
+        const airportDataJson = await response.json(); // wait for the JSON response
+        setLoading(true);
+        setAirportData(airportDataJson.response);
+      } catch (error) {
+        setError(error); // take the error message from the system
+        setLoading(false);
+      } // end try-catch block
+    } // end of fetchData
+
+    fetchAirportData();
+  }, []);
+
   return (
     <>
       <br />
@@ -182,20 +232,40 @@ function App() {
       )}
 
       {mode === "plane" && (
-        <AirportDisplayComponent
-          changeOriginFromParent={changeOrigin}
-          changeDestinationFromParent={changeDestination}
-          changeTotFromParent={changeTot}
+        <AirportSearchFilters
+          APIData={airportData}
+          changeOriginFromParent={changeAirportOrigin}
+          changeDestinationFromParent={changeAirportDestination}
+          origin={airportOrigin}
+          destination={airportDestination}
+          changeModelFromParent={changeTransportationModel}
           flipShowResultsFromParent={flipShowResults}
-          showResultsFromParent={showResults}
+          categoryFromParent={mode}
+          transportationModelsFromParent={transportationModels}
+          filterTotFromParent={filterTot}
         />
       )}
 
-      {showResults > 0 && (
+      {showResults > 0 && mode === "car" && (
         <Results
           totFromParent={tot}
           originFromParent={origin}
           destinationFromParent={destination}
+          originLatFromParent={originLat}
+          originLonFromParent={originLon}
+          destinationLatFromParent={destinationLat}
+          destinationLonFromParent={destinationLon}
+          calculateDistanceFromParent={calculateDistance}
+          findTotForCo2FromParent={findTotForCo2}
+          transportationModelsFromParent={transportationModels}
+          transportationModelFromParent={transportationModel}
+        />
+      )}
+      {showResults > 0 && mode === "plane" && (
+        <Results
+          totFromParent={tot}
+          originFromParent={airportOrigin}
+          destinationFromParent={airportDestination}
           originLatFromParent={originLat}
           originLonFromParent={originLon}
           destinationLatFromParent={destinationLat}
@@ -240,66 +310,56 @@ function MainMenu(props) {
 }
 
 function Results(props) {
-  if (
-    props.transportationModelFromParent !== "" &&
-    props.originFromParent !== "" &&
-    props.destinationFromParent !== ""
-  ) {
-    return (
-      <div className="text-2xl text-center">
-        <p className="mb-4">
-          Traveling from{" "}
-          <span className="font-bold">
-            {props.originFromParent.split(",")[0]}
-          </span>{" "}
-          to{" "}
-          <span className="font-bold">
-            {props.destinationFromParent.split(",")[0]}
-          </span>{" "}
-          by{" "}
-          <span className="font-bold">
-            {props.transportationModelFromParent}
-          </span>
-          .
-        </p>
-        <p className="mb-4">
-          CO2 amount:{" "}
-          <span className="font-bold">
-            {(
-              props.transportationModelsFromParent[
-                props.transportationModelsFromParent.findIndex(
-                  props.findTotForCo2FromParent(),
-                )
-              ].Co2PerKm *
-              props.calculateDistanceFromParent(
-                props.originLatFromParent,
-                props.originLonFromParent,
-                props.destinationLatFromParent,
-                props.destinationLonFromParent,
+  return (
+    <div className="text-2xl text-center">
+      <p className="mb-4">
+        Traveling from{" "}
+        <span className="font-bold">
+          {props.originFromParent.split(",")[0]}
+        </span>{" "}
+        to{" "}
+        <span className="font-bold">
+          {props.destinationFromParent.split(",")[0]}
+        </span>{" "}
+        by{" "}
+        <span className="font-bold">{props.transportationModelFromParent}</span>
+        .
+      </p>
+      <p className="mb-4">
+        CO2 amount:{" "}
+        <span className="font-bold">
+          {(
+            props.transportationModelsFromParent[
+              props.transportationModelsFromParent.findIndex(
+                props.findTotForCo2FromParent(),
               )
-            ).toFixed(2)}
-            {" kg"}
-          </span>
-        </p>
-        <p>
-          Distance:{" "}
-          <span className="font-bold">
-            {props
-              .calculateDistanceFromParent(
-                props.originLatFromParent,
-                props.originLonFromParent,
-                props.destinationLatFromParent,
-                props.destinationLonFromParent,
-              )
-              .toFixed(2)}
-            {" km"}
-          </span>
-        </p>
-      </div>
-    );
-  } else {
-    return null;
-  }
+            ].Co2PerKm *
+            props.calculateDistanceFromParent(
+              props.originLatFromParent,
+              props.originLonFromParent,
+              props.destinationLatFromParent,
+              props.destinationLonFromParent,
+            )
+          ).toFixed(2)}
+          {" kg"}
+        </span>
+      </p>
+      <p>
+        Distance:{" "}
+        <span className="font-bold">
+          {props
+            .calculateDistanceFromParent(
+              props.originLatFromParent,
+              props.originLonFromParent,
+              props.destinationLatFromParent,
+              props.destinationLonFromParent,
+            )
+            .toFixed(2)}
+          {" km"}
+        </span>
+      </p>
+    </div>
+  );
 }
 
 export default App;
