@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
 import AirportSearchFilters from "./Airports.js";
+import TrainSearchFilters from "./Trains.js";
 import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [trainOrigin, setTrainOrigin] = useState("");
-  const [traindestination, setTrainDestination] = useState("");
+  const [trainDestination, setTrainDestination] = useState("");
   const [airportOrigin, setAirportOrigin] = useState("");
   const [airportDestination, setAirportDestination] = useState("");
   const [tot, setTot] = useState("");
@@ -45,19 +46,36 @@ function App() {
   }
   function changeAirportOrigin(event) {
     setAirportOrigin(event.target.value);
-    let lat1 = 0;
-    let lng1 = 0;
     airportData
       .filter(airportFilterFunction(airportOrigin))
       .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng)));
   }
   function changeAirportDestination(event) {
     setAirportDestination(event.target.value);
-    let lat2 = 0;
-    let lng2 = 0;
     airportData
       .filter(airportFilterFunction(airportDestination))
       .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng)));
+  }
+  function changeTrainOrigin(event) {
+    setTrainOrigin(event.target.value);
+    trainData
+      .filter(trainFilterFunction(trainOrigin))
+      .map(
+        (p, index) => (
+          setOriginLat(p.StationLatitude), setOriginLon(p.StationLongitude)
+        ),
+      );
+  }
+  function changeTrainDestination(event) {
+    setTrainDestination(event.target.value);
+    trainData
+      .filter(trainFilterFunction(trainDestination))
+      .map(
+        (p, index) => (
+          setDestinationLat(p.StationLatitude),
+          setDestinationLon(p.StationLongitude)
+        ),
+      );
   }
   function changeTot(event) {
     setTot(event.target.value);
@@ -123,6 +141,13 @@ function App() {
         (search !== "" && country_code.includes(search)) ||
         name.includes(search)
       );
+    };
+  }
+
+  function trainFilterFunction(searchTerm) {
+    return function (stationObject) {
+      let loco = stationObject.StationDesc.toLowerCase();
+      return searchTerm !== "" && loco.includes(searchTerm.toLowerCase());
     };
   }
 
@@ -263,6 +288,23 @@ function App() {
           categoryFromParent={mode}
           transportationModelsFromParent={transportationModels}
           filterTotFromParent={filterTot}
+          airportFilterFunctionFromParent={airportFilterFunction}
+        />
+      )}
+
+      {mode === "train" && (
+        <TrainSearchFilters
+          APIData={trainData}
+          changeOriginFromParent={changeTrainOrigin}
+          changeDestinationFromParent={changeTrainDestination}
+          origin={trainOrigin}
+          destination={trainDestination}
+          changeModelFromParent={changeTransportationModel}
+          flipShowResultsFromParent={flipShowResults}
+          categoryFromParent={mode}
+          transportationModelsFromParent={transportationModels}
+          filterTotFromParent={filterTot}
+          trainFilterFunctionFromParent={trainFilterFunction}
         />
       )}
 
@@ -296,7 +338,21 @@ function App() {
           findTotForCo2FromParent={findTotForCo2}
           transportationModelsFromParent={transportationModels}
           transportationModelFromParent={transportationModel}
-          airportFilterFunctionFromParent={airportFilterFunction}
+        />
+      )}
+      {showResults > 0 && mode === "train" && (
+        <Results
+          totFromParent={tot}
+          originFromParent={trainOrigin}
+          destinationFromParent={trainDestination}
+          originLatFromParent={originLat}
+          originLonFromParent={originLon}
+          destinationLatFromParent={destinationLat}
+          destinationLonFromParent={destinationLon}
+          calculateDistanceFromParent={calculateDistance}
+          findTotForCo2FromParent={findTotForCo2}
+          transportationModelsFromParent={transportationModels}
+          transportationModelFromParent={transportationModel}
         />
       )}
     </>
@@ -386,9 +442,11 @@ function Results(props) {
 }
 
 function NetworkConnection(props) {
-  if (errorFromParent) {
-    return <h2>Page cannot be loaded due to {errorFromParent.toString()}</h2>;
-  } else if (loadingFromParent === false) {
+  if (props.errorFromParent) {
+    return (
+      <h2>Page cannot be loaded due to {props.errorFromParent.toString()}</h2>
+    );
+  } else if (props.loadingFromParent === false) {
     return <h2>Please wait while page is loading</h2>;
   }
 }
