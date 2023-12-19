@@ -7,6 +7,8 @@ import { transportationModels } from "./transportation";
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [trainOrigin, setTrainOrigin] = useState("");
+  const [traindestination, setTrainDestination] = useState("");
   const [airportOrigin, setAirportOrigin] = useState("");
   const [airportDestination, setAirportDestination] = useState("");
   const [tot, setTot] = useState("");
@@ -24,6 +26,7 @@ function App() {
   const [destinationLat, setDestinationLat] = useState([]);
   const [mode, setMode] = useState("");
   const [airportData, setAirportData] = useState([]);
+  const [trainData, setTrainData] = useState([]);
 
   function changeMode(newMode) {
     setMode(newMode);
@@ -45,7 +48,7 @@ function App() {
     let lat1 = 0;
     let lng1 = 0;
     airportData
-      .filter(AirportFilterFunction(airportOrigin))
+      .filter(airportFilterFunction(airportOrigin))
       .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng)));
   }
   function changeAirportDestination(event) {
@@ -53,7 +56,7 @@ function App() {
     let lat2 = 0;
     let lng2 = 0;
     airportData
-      .filter(AirportFilterFunction(airportDestination))
+      .filter(airportFilterFunction(airportDestination))
       .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng)));
   }
   function changeTot(event) {
@@ -111,7 +114,7 @@ function App() {
     };
   }
 
-  function AirportFilterFunction(searchTerm) {
+  function airportFilterFunction(searchTerm) {
     return function (airportObject) {
       let country_code = airportObject.country_code.toLowerCase();
       let name = airportObject.name.toLowerCase();
@@ -209,6 +212,23 @@ function App() {
     fetchAirportData();
   }, []);
 
+  useEffect(() => {
+    const URL =
+      "https://raw.githubusercontent.com/hugorodriv/denali/main/public/Station";
+    async function fetchTrainData() {
+      try {
+        const response = await fetch(URL);
+        const TrainDatajson = await response.json();
+        setLoading(true);
+        setTrainData(TrainDatajson.objStation);
+      } catch (error) {
+        setError(error);
+        setLoading(false);
+      }
+    }
+    fetchTrainData();
+  }, []);
+
   return (
     <>
       <br />
@@ -246,6 +266,8 @@ function App() {
         />
       )}
 
+      <NetworkConnection errorFromParent={error} loadingFromParent={loading} />
+
       {showResults > 0 && mode === "car" && (
         <Results
           totFromParent={tot}
@@ -274,6 +296,7 @@ function App() {
           findTotForCo2FromParent={findTotForCo2}
           transportationModelsFromParent={transportationModels}
           transportationModelFromParent={transportationModel}
+          airportFilterFunctionFromParent={airportFilterFunction}
         />
       )}
     </>
@@ -360,6 +383,14 @@ function Results(props) {
       </p>
     </div>
   );
+}
+
+function NetworkConnection(props) {
+  if (errorFromParent) {
+    return <h2>Page cannot be loaded due to {errorFromParent.toString()}</h2>;
+  } else if (loadingFromParent === false) {
+    return <h2>Please wait while page is loading</h2>;
+  }
 }
 
 export default App;

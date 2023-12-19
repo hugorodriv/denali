@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 function AirportSearchFilters(props) {
-  function AirportFilterFunction(searchTerm) {
-    return function (airportObject) {
-      let country_code = airportObject.country_code.toLowerCase();
-      let name = airportObject.name.toLowerCase();
-      let search = searchTerm.toLowerCase();
-      return (
-        (search !== "" && country_code.includes(search)) ||
-        name.includes(search)
-      );
-    };
-  }
   return (
     <>
       <div class="container mx-auto p-12">
@@ -27,13 +16,13 @@ function AirportSearchFilters(props) {
             list="airport-origin-list"
           />
           <datalist id="airport-origin-list">
-            {props.APIData.filter(AirportFilterFunction(props.origin)).map(
-              (p, index) => (
-                <div lon={p.lng} lat={p.lat}>
-                  <option value={p.name}></option>
-                </div>
-              ),
-            )}
+            {props.APIData.filter(
+              props.airportFilterFunctionFromParent(props.origin),
+            ).map((p, index) => (
+              <div lon={p.lng} lat={p.lat}>
+                <option value={p.name}></option>
+              </div>
+            ))}
           </datalist>
         </div>
 
@@ -45,13 +34,13 @@ function AirportSearchFilters(props) {
             list="airport-destination-list"
           />
           <datalist id="airport-destination-list">
-            {props.APIData.filter(AirportFilterFunction(props.destination)).map(
-              (p, index) => (
-                <div lon={p.lng} lat={p.lat}>
-                  <option value={p.name}></option>
-                </div>
-              ),
-            )}
+            {props.APIData.filter(
+              props.airportFilterFunctionFromParent(props.destination),
+            ).map((p, index) => (
+              <div lon={p.lng} lat={p.lat}>
+                <option value={p.name}></option>
+              </div>
+            ))}
           </datalist>
         </div>
 
