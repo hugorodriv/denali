@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 import CarSearchFilters from "./Car.js";
-import AirportDisplayComponent from "./airports/Airports";
+import AirportSearchFilters from "./airports/Airports.js";
 import { transportationModels } from "./transportation";
 
 function App() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [airportOrigin, setAirportOrigin] = useState("");
+  const [airportDestination, setAirportDestination] = useState("");
   const [tot, setTot] = useState("");
   const [transportationModel, setTransportationModel] = useState("");
   const [showResults, setShowResults] = useState(0);
@@ -21,6 +23,7 @@ function App() {
   const [destinationLon, setDestinationLon] = useState([]);
   const [destinationLat, setDestinationLat] = useState([]);
   const [mode, setMode] = useState("");
+  const [airportData, setAirportData] = useState([]);
 
   function changeMode(newMode) {
     setMode(newMode);
@@ -36,6 +39,12 @@ function App() {
     setTimeout(() => {
       setDestination(event.target.value);
     }, 1001);
+  }
+  function changeAirportOrigin(event) {
+    setAirportOrigin(event.target.value);
+  }
+  function changeAirportDestination(event) {
+    setAirportDestination(event.target.value);
   }
   function changeTot(event) {
     setTot(event.target.value);
@@ -159,6 +168,25 @@ function App() {
     fetchData();
   }, [destination]);
 
+  useEffect(() => {
+    const URL =
+      "https://airlabs.co/api/v9/airports?api_key=8e4dc1c1-49d5-427f-902a-9dac726afc04";
+
+    async function fetchAirportData() {
+      try {
+        const response = await fetch(URL);
+        const airportDataJson = await response.json(); // wait for the JSON response
+        setLoading(true);
+        setAirportData(airportDataJson.response);
+      } catch (error) {
+        setError(error); // take the error message from the system
+        setLoading(false);
+      } // end try-catch block
+    } // end of fetchData
+
+    fetchAirportData();
+  }, []);
+
   return (
     <>
       <br />
@@ -182,16 +210,31 @@ function App() {
       )}
 
       {mode === "plane" && (
-        <AirportDisplayComponent
-          changeOriginFromParent={changeOrigin}
-          changeDestinationFromParent={changeDestination}
-          changeTotFromParent={changeTot}
-          flipShowResultsFromParent={flipShowResults}
-          showResultsFromParent={showResults}
+        <AirportSearchFilters
+          APIData={airportData}
+          changeOriginFromParent={changeAirportOrigin}
+          changeDestinationFromParent={changeAirportDestination}
+          origin={airportOrigin}
+          destination={airportDestination}
         />
       )}
 
-      {showResults > 0 && (
+      {showResults > 0 && mode === "car" && (
+        <Results
+          totFromParent={tot}
+          originFromParent={origin}
+          destinationFromParent={destination}
+          originLatFromParent={originLat}
+          originLonFromParent={originLon}
+          destinationLatFromParent={destinationLat}
+          destinationLonFromParent={destinationLon}
+          calculateDistanceFromParent={calculateDistance}
+          findTotForCo2FromParent={findTotForCo2}
+          transportationModelsFromParent={transportationModels}
+          transportationModelFromParent={transportationModel}
+        />
+      )}
+      {showResults > 0 && mode === "plane" && (
         <Results
           totFromParent={tot}
           originFromParent={origin}
