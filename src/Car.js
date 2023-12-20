@@ -4,6 +4,9 @@ function CarSearchFilters(props) {
   return (
     <>
       <div class="container mx-auto p-12">
+        <h1 class="text-3xl text-center mb-8">
+          CO2 Emissions Calculator - Cars
+        </h1>
         <div class="mb-4">
           <label class="text-sm font-medium text-gray-600">Origin</label>
           <input
