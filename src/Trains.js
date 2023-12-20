@@ -6,7 +6,7 @@ function TrainSearchFilters(props) {
     <>
       <div class="container mx-auto p-12">
         <h1 class="text-3xl text-center mb-8">
-          Irish Train Emmissions Calculator
+          CO2 Emissions Calculator - Irish Trains
         </h1>
         <img
           style={{
@@ -22,6 +22,7 @@ function TrainSearchFilters(props) {
           A British Railways Class 28 Co-Bo Diesel Engine, infamous for constant
           unreliabilty and smoke emissions
         </p>
+        <br></br>
         <Exposition />
         <div class="mb-4">
           <label class="text-sm font-medium text-gray-600">Departure</label>
@@ -86,7 +87,7 @@ function TrainSearchFilters(props) {
 function Exposition() {
   return (
     <>
-      <h2 style={{ color: "green", textAlign: "center" }}>Background</h2>
+      <h1 style={{ color: "green", textAlign: "center" }}>Background</h1>
       <p style={{ color: "darkorange", textAlign: "center" }}>
         Ever since replacing steam traction in the mid-20th Century, diesel
         locomotive power has been estimated to produce 91 grams of CO2

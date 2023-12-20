@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
-
+//import components
 import CarSearchFilters from "./Car.js";
 import AirportSearchFilters from "./Airports.js";
 import TrainSearchFilters from "./Trains.js";
+//import list of transportation types
 import { transportationModels } from "./transportation";
 
 function App() {
+  //declaring consts
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [trainOrigin, setTrainOrigin] = useState("");
   const [trainDestination, setTrainDestination] = useState("");
   const [airportOrigin, setAirportOrigin] = useState("");
   const [airportDestination, setAirportDestination] = useState("");
-  const [tot, setTot] = useState("");
   const [transportationModel, setTransportationModel] = useState("");
   const [showResults, setShowResults] = useState(0);
   const [originList, setOriginList] = useState([]);
@@ -29,32 +30,35 @@ function App() {
   const [airportData, setAirportData] = useState([]);
   const [trainData, setTrainData] = useState([]);
 
+  //Switch between Car, Plane and Train view
   function changeMode(newMode) {
     setMode(newMode);
     setShowResults(0);
+    setError(null);
+    setLoading(true);
   }
 
   function changeOrigin(event) {
     setTimeout(() => {
       setOrigin(event.target.value);
-    }, 1001);
+    }, 1001); //Delay is necessary for free API version
   }
   function changeDestination(event) {
     setTimeout(() => {
       setDestination(event.target.value);
-    }, 1001);
+    }, 1001); //Delay is necessary for free API version
   }
   function changeAirportOrigin(event) {
     setAirportOrigin(event.target.value);
     airportData
       .filter(airportFilterFunction(airportOrigin))
-      .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng)));
+      .map((p, index) => (setOriginLat(p.lat), setOriginLon(p.lng))); //set coordinates of airport
   }
   function changeAirportDestination(event) {
     setAirportDestination(event.target.value);
     airportData
       .filter(airportFilterFunction(airportDestination))
-      .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng)));
+      .map((p, index) => (setDestinationLat(p.lat), setDestinationLon(p.lng))); //set coordinates of airport
   }
   function changeTrainOrigin(event) {
     setTrainOrigin(event.target.value);
@@ -64,7 +68,7 @@ function App() {
         (p, index) => (
           setOriginLat(p.StationLatitude), setOriginLon(p.StationLongitude)
         ),
-      );
+      ); //set coordinates of station
   }
   function changeTrainDestination(event) {
     setTrainDestination(event.target.value);
@@ -75,11 +79,7 @@ function App() {
           setDestinationLat(p.StationLatitude),
           setDestinationLon(p.StationLongitude)
         ),
-      );
-  }
-  function changeTot(event) {
-    setTot(event.target.value);
-    setShowResults(0);
+      ); //set coordinates of station
   }
 
   function changeTransportationModel(event) {
@@ -91,9 +91,6 @@ function App() {
 
   function findDisplayName(needle) {
     return function (haystack) {
-      console.log(haystack.display_name);
-      console.log(needle);
-      console.log(haystack.display_name === needle);
       return haystack.display_name === needle;
     };
   }
@@ -150,7 +147,7 @@ function App() {
       return searchTerm !== "" && loco.includes(searchTerm.toLowerCase());
     };
   }
-
+  //API call for Car origin
   useEffect(() => {
     // Get OriginData
     const URL = "https://geocode.maps.co/search?city=" + origin;
@@ -173,18 +170,18 @@ function App() {
       origin !== "" &&
       (lastOriginList.length !== 0 || originList.length !== 0)
     ) {
-      let templist = [...lastOriginList, ...originList];
+      let templist = [...lastOriginList, ...originList]; //combine the two last API results, necessary because of async
       let n = templist.findIndex(findDisplayName(origin));
       let splicedOrigin = templist.splice(n, 1);
       let tempLon = splicedOrigin[0].lon;
       let tempLat = splicedOrigin[0].lat;
-      console.log(splicedOrigin);
       setOriginLon(tempLon);
       setOriginLat(tempLat);
     }
     fetchData();
-  }, [origin]);
+  }, [origin]); //call API whenever origin changes
 
+  //API call for Car destination
   useEffect(() => {
     // Get OriginData
     const URL = "https://geocode.maps.co/search?city=" + destination;
@@ -207,7 +204,7 @@ function App() {
       destination !== "" &&
       (lastDestinationList.length !== 0 || destinationList.length !== 0)
     ) {
-      let templist = [...lastDestinationList, ...destinationList];
+      let templist = [...lastDestinationList, ...destinationList]; //combine the two last API results, necessary because of async
       let n = templist.findIndex(findDisplayName(destination));
       let splicedDestination = templist.splice(n, 1);
       let tempLon = splicedDestination[0].lon;
@@ -216,8 +213,9 @@ function App() {
       setDestinationLat(tempLat);
     }
     fetchData();
-  }, [destination]);
+  }, [destination]); //call API whenever destination changes
 
+  //API call for airports
   useEffect(() => {
     const URL =
       "https://airlabs.co/api/v9/airports?api_key=8e4dc1c1-49d5-427f-902a-9dac726afc04";
@@ -237,6 +235,7 @@ function App() {
     fetchAirportData();
   }, []);
 
+  //API call for trains
   useEffect(() => {
     const URL =
       "https://raw.githubusercontent.com/hugorodriv/denali/main/public/Station";
@@ -254,6 +253,7 @@ function App() {
     fetchTrainData();
   }, []);
 
+  //Displaying child components and HTML
   return (
     <>
       <br />
@@ -308,53 +308,70 @@ function App() {
         />
       )}
 
-      <NetworkConnection errorFromParent={error} loadingFromParent={loading} />
+      {mode !== "car" && (
+        <NetworkConnection
+          errorFromParent={error}
+          loadingFromParent={loading}
+        />
+      )}
 
-      {showResults > 0 && mode === "car" && (
-        <Results
-          totFromParent={tot}
-          originFromParent={origin}
-          destinationFromParent={destination}
-          originLatFromParent={originLat}
-          originLonFromParent={originLon}
-          destinationLatFromParent={destinationLat}
-          destinationLonFromParent={destinationLon}
-          calculateDistanceFromParent={calculateDistance}
-          findTotForCo2FromParent={findTotForCo2}
-          transportationModelsFromParent={transportationModels}
-          transportationModelFromParent={transportationModel}
-        />
-      )}
-      {showResults > 0 && mode === "plane" && (
-        <Results
-          totFromParent={tot}
-          originFromParent={airportOrigin}
-          destinationFromParent={airportDestination}
-          originLatFromParent={originLat}
-          originLonFromParent={originLon}
-          destinationLatFromParent={destinationLat}
-          destinationLonFromParent={destinationLon}
-          calculateDistanceFromParent={calculateDistance}
-          findTotForCo2FromParent={findTotForCo2}
-          transportationModelsFromParent={transportationModels}
-          transportationModelFromParent={transportationModel}
-        />
-      )}
-      {showResults > 0 && mode === "train" && (
-        <Results
-          totFromParent={tot}
-          originFromParent={trainOrigin}
-          destinationFromParent={trainDestination}
-          originLatFromParent={originLat}
-          originLonFromParent={originLon}
-          destinationLatFromParent={destinationLat}
-          destinationLonFromParent={destinationLon}
-          calculateDistanceFromParent={calculateDistance}
-          findTotForCo2FromParent={findTotForCo2}
-          transportationModelsFromParent={transportationModels}
-          transportationModelFromParent={transportationModel}
-        />
-      )}
+      {showResults > 0 &&
+        mode === "car" &&
+        origin !== "" &&
+        destination !== "" &&
+        transportationModel !== "" && (
+          <Results
+            totFromParent={mode}
+            originFromParent={origin}
+            destinationFromParent={destination}
+            originLatFromParent={originLat}
+            originLonFromParent={originLon}
+            destinationLatFromParent={destinationLat}
+            destinationLonFromParent={destinationLon}
+            calculateDistanceFromParent={calculateDistance}
+            findTotForCo2FromParent={findTotForCo2}
+            transportationModelsFromParent={transportationModels}
+            transportationModelFromParent={transportationModel}
+          />
+        )}
+      {showResults > 0 &&
+        mode === "plane" &&
+        airportOrigin !== "" &&
+        airportDestination !== "" &&
+        transportationModel !== "" && (
+          <Results
+            totFromParent={mode}
+            originFromParent={airportOrigin}
+            destinationFromParent={airportDestination}
+            originLatFromParent={originLat}
+            originLonFromParent={originLon}
+            destinationLatFromParent={destinationLat}
+            destinationLonFromParent={destinationLon}
+            calculateDistanceFromParent={calculateDistance}
+            findTotForCo2FromParent={findTotForCo2}
+            transportationModelsFromParent={transportationModels}
+            transportationModelFromParent={transportationModel}
+          />
+        )}
+      {showResults > 0 &&
+        mode === "train" &&
+        trainOrigin !== "" &&
+        trainDestination !== "" &&
+        transportationModel !== "" && (
+          <Results
+            totFromParent={mode}
+            originFromParent={trainOrigin}
+            destinationFromParent={trainDestination}
+            originLatFromParent={originLat}
+            originLonFromParent={originLon}
+            destinationLatFromParent={destinationLat}
+            destinationLonFromParent={destinationLon}
+            calculateDistanceFromParent={calculateDistance}
+            findTotForCo2FromParent={findTotForCo2}
+            transportationModelsFromParent={transportationModels}
+            transportationModelFromParent={transportationModel}
+          />
+        )}
     </>
   );
 }
@@ -437,6 +454,8 @@ function Results(props) {
           {" km"}
         </span>
       </p>
+      <br></br>
+      <p>NOTE: The route is assumed to be a straight line</p>
     </div>
   );
 }
